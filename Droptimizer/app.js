@@ -4,7 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./src/routes');
+var playerRoutes = require('./src/playerRoutes');
+var upgradeRoutes = require('./src/upgradeRoutes');
+var itemRoutes = require('./src/itemRoutes');
 
 var app = express();
 
@@ -13,7 +15,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
+app.use('/1/player', playerRoutes);
+app.use('/1/upgrade', upgradeRoutes);
+app.use('/1/item', itemRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -28,7 +32,12 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({
+    error: {
+      code: err.status,
+      message: err.message,
+    }
+  });
 });
 
 module.exports = app;

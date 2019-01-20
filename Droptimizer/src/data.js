@@ -26,7 +26,23 @@ function init() {
     `);
 }
 
+function insertDummyData() {
+    db.run(`
+        INSERT INTO players (name, class) VALUES ("Arwic", 3);
+        INSERT INTO players (name, class) VALUES ("Bowbi", 10);
+        INSERT INTO players (name, class) VALUES ("Monkaxd", 12);
+        INSERT INTO players (name, class) VALUES ("Bwobets", 3);
+        INSERT INTO players (name, class) VALUES ("Kharah", 11);
+        INSERT INTO players (name, class) VALUES ("Solarhands", 5);
+        INSERT INTO players (name, class) VALUES ("Sadwoofer", 9);
+        INSERT INTO players (name, class) VALUES ("Astios", 2);
+        INSERT INTO players (name, class) VALUES ("Datspank", 6);
+    `)
+}
+
 init();
+
+insertDummyData();
 
 module.exports = {
     db: db
