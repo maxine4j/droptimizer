@@ -1,22 +1,27 @@
 var express = require('express');
 var router = express.Router();
+var data = require('./data');
 
-function getAllPlayers() {
+// gets all players
+router.get('/$', function(req, res, next) {
     let sql = 'SELECT * FROM players;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
             throw err;
         }
-        rows.forEach((row) => {
-            console.log(row.name);
-        });
-        return rows;
+        res.json(rows)
     });
-}
-router.get('/all', function(req, res, next) {
-    let allPlayers = getAllPlayers();
-    print(allPlayers)
-    res.json('test')
 });
+
+// gets a player by name
+router.get('/:name', function(req, res, next) {
+    let sql = 'SELECT * FROM players WHERE name=? COLLATE NOCASE;';
+    data.db.get(sql, [req.params.name], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows)
+    });
+})
 
 module.exports = router;

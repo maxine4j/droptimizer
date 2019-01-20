@@ -1,19 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
-function getAllPlayers() {
-    let sql = 'SELECT * FROM players;';
-    data.db.all(sql, [], (err, rows) => {
-            if (err) {
-                throw err;
-            }
-            rows.forEach((row) => {
-                console.log(row.name);
-            });
-      });
-}
-router.get('/', function(req, res, next) {
-    res.json('/')
+
+// gets an itme by id
+router.get('/:itemID', function(req, res, next) {
+    let sql = 'SELECT * FROM items WHERE id=?;';
+    data.db.get(sql, [req.params.itemID], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows)
+    });
 });
 
 module.exports = router;
