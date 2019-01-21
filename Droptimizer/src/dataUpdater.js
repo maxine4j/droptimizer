@@ -17,7 +17,7 @@ blizzard.getApplicationToken({
 function updateCharacter(charName, charRealm, charRegion) {
     blizzard.wow.character(['profile'], { origin: charRegion, realm: charRealm, name: charName, token: blizzardToken })
         .then(response => {
-            data.db.run(`INSERT OR REPLACE INTO characters(
+            let sql = `INSERT OR REPLACE INTO characters(
                 lastModified,
                 name,
                 realm,
@@ -28,8 +28,21 @@ function updateCharacter(charName, charRealm, charRegion) {
                 level,
                 thumbnail,
                 faction,
-                guild) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`)
-            console.log(response.data);
+                guild) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+            let params = [
+                response.data.lastModified,
+                response.data.name,
+                charRealm,
+                charRegion,
+                response.data.class,
+                response.data.race,
+                response.data.gender,
+                response.data.level,
+                response.data.thumbnail,
+                response.data.faction,
+                "Bastion",
+            ];
+            data.db.run(sql, params)
         }).catch(e => console.error(e));
 }
 
