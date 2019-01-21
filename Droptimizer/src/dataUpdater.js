@@ -68,7 +68,7 @@ setTimeout(function() {
             updateCharacter('bowbi', 'frostmourne', 'us'); 
             updateCharacter('monkaxd', 'frostmourne', 'us'); 
             updateCharacter('subjugates', 'frostmourne', 'us'); 
-            updateCharacter('kharah', 'frostmourne', 'us'); 
+            updateCharacter('kharahh', 'frostmourne', 'us'); 
             updateCharacter('datspank', 'frostmourne', 'us'); 
             updateCharacter('astios', 'frostmourne', 'us'); 
             updateCharacter('solarhands', 'frostmourne', 'us'); 
@@ -76,6 +76,21 @@ setTimeout(function() {
             updateCharacter('sadwoofer', 'frostmourne', 'us'); 
             updateCharacter('cleavergreen', 'frostmourne', 'us'); 
             updateCharacter('bwobets', 'frostmourne', 'us'); 
+            updateCharacter('dasit', 'frostmourne', 'us'); 
+            updateCharacter('sslay', 'frostmourne', 'us'); 
+            updateCharacter('vietmonks', 'frostmourne', 'us'); 
+            updateCharacter('nivektis', 'frostmourne', 'us'); 
+            updateCharacter('ptolemy', 'frostmourne', 'us'); 
+            updateCharacter('stollas', 'frostmourne', 'us'); 
+            updateCharacter('lightzlightt', 'frostmourne', 'us'); 
+            updateCharacter('agreatname', 'frostmourne', 'us'); 
+            updateCharacter('kitteriel', 'frostmourne', 'us'); 
+            updateCharacter('procreated', 'frostmourne', 'us'); 
+            updateCharacter('bbltransfmnz', 'frostmourne', 'us'); 
+            updateCharacter('zezek', 'frostmourne', 'us'); 
+            updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
+            updateCharacter('peroxíde', 'frostmourne', 'us'); 
+            updateCharacter('meggers', 'frostmourne', 'us'); 
         } else {
             updateAllCharacters();
         }
