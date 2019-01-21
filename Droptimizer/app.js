@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/1/player', playerRoutes);
+app.use('/1/character', playerRoutes);
 app.use('/1/upgrade', upgradeRoutes);
 app.use('/1/item', itemRoutes);
 
