@@ -43,35 +43,43 @@ function updateCharacter(charName, charRealm, charRegion) {
                 "Bastion",
             ];
             data.db.run(sql, params)
-        }).catch(e => console.error(e));
+        }).catch(e => console.error(`Error updating ${charName}-${charRealm}-${charRegion}`));
 }
 
 function updateAllCharacters() {
     // get all chars
-    let sql = 'SELECT * FROM players;';
+    let sql = 'SELECT * FROM characters;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
             throw err;
         }
         for (var i = 0; i < rows.length; i++) {
+            console.log(`Updating data for ${rows[i].name}-${rows[i].realm}-${rows[i].region}`);
             updateCharacter(rows[i].name, rows[i].realm, rows[i].region);
         }
     });
 }
 
-setTimeout(function() { 
-    updateCharacter('arwic', 'frostmourne', 'us'); 
-    updateCharacter('bowbi', 'frostmourne', 'us'); 
-    updateCharacter('monkaxd', 'frostmourne', 'us'); 
-    updateCharacter('subjugates', 'frostmourne', 'us'); 
-    updateCharacter('kharah', 'frostmourne', 'us'); 
-    updateCharacter('datspank', 'frostmourne', 'us'); 
-    updateCharacter('astios', 'frostmourne', 'us'); 
-    updateCharacter('solarhands', 'frostmourne', 'us'); 
-    updateCharacter('gayke', 'frostmourne', 'us'); 
-    updateCharacter('sadwoofer', 'frostmourne', 'us'); 
-    updateCharacter('cleavergreen', 'frostmourne', 'us'); 
-    updateCharacter('bwobets', 'frostmourne', 'us'); 
+setTimeout(function() {
+    let sql = 'SELECT * FROM characters;';
+    data.db.all(sql, [], (err, rows) => {
+        if (rows.length == 0) {
+            updateCharacter('arwic', 'frostmourne', 'us'); 
+            updateCharacter('bowbi', 'frostmourne', 'us'); 
+            updateCharacter('monkaxd', 'frostmourne', 'us'); 
+            updateCharacter('subjugates', 'frostmourne', 'us'); 
+            updateCharacter('kharah', 'frostmourne', 'us'); 
+            updateCharacter('datspank', 'frostmourne', 'us'); 
+            updateCharacter('astios', 'frostmourne', 'us'); 
+            updateCharacter('solarhands', 'frostmourne', 'us'); 
+            updateCharacter('gayke', 'frostmourne', 'us'); 
+            updateCharacter('sadwoofer', 'frostmourne', 'us'); 
+            updateCharacter('cleavergreen', 'frostmourne', 'us'); 
+            updateCharacter('bwobets', 'frostmourne', 'us'); 
+        } else {
+            updateAllCharacters();
+        }
+    });
 }, 1000);
 
 module.exports = null;
