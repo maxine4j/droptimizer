@@ -18,11 +18,11 @@ router.get('/$', function(req, res, next) {
 // gets a character by name
 router.get('/:region/:realm/:name', function(req, res, next) {
     let sql = 'SELECT * FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
-    data.db.get(sql, [req.params.region, req.params.realm, req.params.name], (err, rows) => {
+    data.db.get(sql, [req.params.region, req.params.realm, req.params.name], (err, row) => {
         if (err) {
             throw err;
         }
-        res.json(rows)
+        res.json(row)
     });
 })
 
