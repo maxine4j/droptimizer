@@ -59,6 +59,19 @@ function updateAllCharacters() {
     });
 }
 
-setTimeout(function() { updateCharacter('arwic', 'frostmourne', 'us') }, 1000);
+setTimeout(function() { 
+    updateCharacter('arwic', 'frostmourne', 'us'); 
+    updateCharacter('bowbi', 'frostmourne', 'us'); 
+    updateCharacter('monkaxd', 'frostmourne', 'us'); 
+    updateCharacter('subjugates', 'frostmourne', 'us'); 
+    updateCharacter('kharah', 'frostmourne', 'us'); 
+    updateCharacter('datspank', 'frostmourne', 'us'); 
+    updateCharacter('astios', 'frostmourne', 'us'); 
+    updateCharacter('solarhands', 'frostmourne', 'us'); 
+    updateCharacter('gayke', 'frostmourne', 'us'); 
+    updateCharacter('sadwoofer', 'frostmourne', 'us'); 
+    updateCharacter('cleavergreen', 'frostmourne', 'us'); 
+    updateCharacter('bwobets', 'frostmourne', 'us'); 
+}, 1000);
 
 module.exports = null;

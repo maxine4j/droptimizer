@@ -42,25 +42,7 @@ function init() {
                 PRIMARY KEY (characterID, itemID));`);
 }
 
-function insertDummyData() {
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Arwic", "Frostmourne", "us", 3, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Bowbi", "Frostmourne", "us", 10, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Monkaxd", "Frostmourne", "us", 12, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Bwobets", "Frostmourne", "us", 3, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Kharah", "Frostmourne", "us", 11, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Solarhands", "Frostmourne", "us", 5, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Sadwoofer", "Frostmourne", "us", 9, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Astios", "Frostmourne", "us", 2, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-    db.run('INSERT OR IGNORE INTO characters (name, realm, region, class, guild, thumbnail) VALUES ("Datspank", "Frostmourne", "us", 6, "Bastion", "https://render-us.worldofwarcraft.com/character/frostmourne/86/170341462-avatar.jpg");');
-
-    db.run('INSERT OR IGNORE INTO upgrades (characterID, itemID, mean) VALUES (7, 123456, 987.123);');
-}
-
 init();
-
-setTimeout(function() {
-    insertDummyData();
-}, 500);
 
 module.exports = {
     db: db
