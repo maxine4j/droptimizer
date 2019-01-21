@@ -70,17 +70,13 @@ function parseSimcReport(report) {
     let charName = report.simbot.meta.rawFormData.character.name;
     let charRealm = report.simbot.meta.rawFormData.character.realm;
     let charRegion = report.simbot.meta.rawFormData.character.region;
-    /*let charClass = report.simbot.meta.rawFormData.character.class;
-    let charLevel = report.simbot.meta.rawFormData.character.level;
-    let charRace = report.simbot.meta.rawFormData.character.race;
-    let charFaction = report.simbot.meta.rawFormData.character.faction;*/
     console.log(`Parsing report for ${charName}-${charRealm}-${charRegion}`);
     updateCharacter(charName, charRealm, charRegion);
 
     // get the character id
     let sql = 'SELECT * FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
     data.db.get(sql, [charRegion, charRealm, charName], (err, row) => {
-        if (err) {
+        if (err || !row) {
             throw err;
         }
         let charID = row.id
@@ -154,7 +150,7 @@ setTimeout(function() {
             updateCharacter('dasit', 'frostmourne', 'us'); 
             updateCharacter('sslay', 'frostmourne', 'us'); 
             updateCharacter('vietmonks', 'frostmourne', 'us'); 
-            updateCharacter('nivektis', 'frostmourne', 'us'); 
+            updateCharacter('Nivektis', 'frostmourne', 'us'); 
             updateCharacter('ptolemy', 'frostmourne', 'us'); 
             updateCharacter('stollas', 'frostmourne', 'us'); 
             updateCharacter('lightzlightt', 'frostmourne', 'us'); 
@@ -170,8 +166,12 @@ setTimeout(function() {
             updateAllCharacters();
         }
 
-        updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4');
+        setTimeout(function() {
+            updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4');
+        }, 1000);
     });
 }, 1000);
+
+
 
 module.exports = null;
