@@ -13,18 +13,20 @@ router.get('/$', function(req, res, next) {
     });
 });
 
-// gets an upgrade by id and player name
-router.get('/:playerName/:itemID', function(req, res, next) {
+// gets an upgrade by id and character name
+router.get('/:region/:realm/:name/:itemID', function(req, res, next) {
     console.log(req.params.playerName, req.params.itemID)
     let sql = `SELECT * 
                 FROM upgrades 
-                INNER JOIN players ON upgrades.playerID = players.id
-                WHERE players.name=? COLLATE NOCASE AND upgrades.itemID=?;`;
-    data.db.get(sql, [req.params.playerName, req.params.itemID], (err, rows) => {
+                JOIN characters ON upgrades.characterID = characters.id
+                WHERE characters.region=? COLLATE NOCASE 
+                AND characters.realm=? COLLATE NOCASE
+                AND characters.name=? COLLATE NOCASE
+                AND upgrades.itemID=?;`;
+    data.db.get(sql, [req.params.region, req.params.realm, req.params.name, req.params.itemID], (err, rows) => {
         if (err) {
             throw err;
         }
-        console.log(rows);
         res.json(rows)
     });
 })

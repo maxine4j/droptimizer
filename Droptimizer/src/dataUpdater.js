@@ -170,7 +170,7 @@ setTimeout(function() {
             updateAllCharacters();
         }
 
-        //updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4');
+        updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4');
     });
 }, 1000);
 
