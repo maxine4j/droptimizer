@@ -2,14 +2,14 @@ var express = require('express');
 var data = require('./data');
 var request = require('request');
 var blizzard  = require('blizzard.js').initialize({
-    key: '18512c5fb91544aa8cb99a4d18d7b7b6',
-    secret: 'tW4m7BH0MBk0OkfsjGWVfHHphN7DdTN4',
+    key: process.env.WOW_API_CLIENTID,
+    secret: process.env.WOW_API_CLIENTSECRET,
     origin: 'us',
 });
 var blizzardToken = '';
 blizzard.getApplicationToken({
-    key: '18512c5fb91544aa8cb99a4d18d7b7b6',
-    secret: 'tW4m7BH0MBk0OkfsjGWVfHHphN7DdTN4',
+    key: process.env.WOW_API_CLIENTID,
+    secret: process.env.WOW_API_CLIENTSECRET,
     origin: 'us'
 }).then(response => {
     blizzardToken = response.data.access_token;
@@ -45,9 +45,9 @@ function updateCharacter(charName, charRealm, charRegion) {
                     response.data.level,
                     response.data.thumbnail,
                     response.data.faction,
-                    "Bastion",
+                    'Bastion',
                 ];
-                data.db.run(sql, params)
+                data.db.run(sql, params);
             })
         }).catch(e => console.error(`Error updating ${charName}-${charRealm}-${charRegion}`));
 }
@@ -69,7 +69,7 @@ function updateAllCharacters() {
 function parseSimcReport(report) {
     let charName = report.simbot.meta.rawFormData.character.name;
     let charRealm = report.simbot.meta.rawFormData.character.realm;
-    let charRegion = "us";
+    let charRegion = 'us';
     console.log(`Parsing report for ${charName}-${charRealm}-${charRegion}`);
     updateCharacter(charName, charRealm, charRegion);
 
@@ -77,10 +77,9 @@ function parseSimcReport(report) {
     let sql = 'SELECT * FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
     data.db.get(sql, [charRegion, charRealm, charName], (err, row) => {
         if (err || !row) {
-            console.log(err);
             throw err;
         }
-        let charID = row.id
+        let charID = row.id;
         console.log('charID = ' + charID)
         // insert the upgrade into upgrades table
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
@@ -111,7 +110,7 @@ function parseSimcReport(report) {
                 result.third_quartile,
                 result.iterations,
             ];
-            data.db.run(sql, params)
+            data.db.run(sql, params);
         }
     });
 }
@@ -169,13 +168,12 @@ setTimeout(function() {
 
         setTimeout(function() {
             updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4');
-            setTimeout(function() {
-                updateSimcReport('tbrHVDZPgEiMf5ykvXR1AU');
-            }, 10000); 
-        }, 10000);
-        
+        }, 2000);
+        setTimeout(function() {
+            updateSimcReport('tbrHVDZPgEiMf5ykvXR1AU');
+        }, 2000); 
     });
-}, 10000);
+}, 2000);
 
 
 
