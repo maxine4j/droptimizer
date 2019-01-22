@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');
 
 var playerRoutes = require('./src/playerRoutes');
 var upgradeRoutes = require('./src/upgradeRoutes');
@@ -14,6 +15,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(cors());
 
 app.use('/1/character', playerRoutes);
 app.use('/1/upgrade', upgradeRoutes);
