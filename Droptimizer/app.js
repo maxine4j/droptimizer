@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 
-var playerRoutes = require('./src/playerRoutes');
+var characterRoutes = require('./src/characterRoutes');
 var upgradeRoutes = require('./src/upgradeRoutes');
 var itemRoutes = require('./src/itemRoutes');
 
@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 app.use(cors());
 
-app.use('/1/character', playerRoutes);
+app.use('/1/character', characterRoutes);
 app.use('/1/upgrade', upgradeRoutes);
 app.use('/1/item', itemRoutes);
 

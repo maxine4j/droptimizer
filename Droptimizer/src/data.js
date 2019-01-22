@@ -24,9 +24,11 @@ function init() {
                 faction INTEGER NOT NULL,
                 guild TEXT NOT NULL);`);
     db.run(`CREATE TABLE IF NOT EXISTS items 
-                (id INTEGER PRIMARY KEY, 
-                name TEXT, 
-                ilvl INTEGER);`);
+                (id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                icon TEXT NOT NULL,
+                quality INTEGER NOT NULL,
+                itemLevel INTEGER NOT NULL);`);
     db.run(`CREATE TABLE IF NOT EXISTS upgrades 
                 (characterID INTEGER NOT NULL REFERENCES characters, 
                 itemID INTEGER NOT NULL REFERENCES items, 

@@ -132,6 +132,27 @@ function updateSimcReport(reportID) {
     fetchSimcReport(reportID, report => parseSimcReport(report));
 }
 
+function updateItems() {
+    let uri = 'https://www.raidbots.com/static/data/live/equippable-items.json';
+    request.get(uri, function(error, response, body) {
+        if (response && response.statusCode == 200) {
+            console.log('Got item data from raidbots');
+            items = JSON.parse(body);
+            let doneCount = 0;
+            data.db.run("BEGIN TRANSACTION");
+            for (let i = 0; i < items.length; i++) {
+                let sql = 'INSERT OR REPLACE INTO items(id, name, icon, quality, itemLevel) VALUES (?, ?, ?, ?, ?);'
+                let params = [items[i].id, items[i].name, items[i].icon, items[i].quality, items[i].itemLevel];
+                data.db.run(sql, params);
+            }
+            data.db.run("COMMIT");
+            console.log(`${items.length} items updated`);
+        } else {
+            console.error(error);
+        }
+    });
+}
+
 setTimeout(function() {
     let sql = 'SELECT * FROM characters;';
     data.db.all(sql, [], (err, rows) => {
@@ -176,6 +197,6 @@ setTimeout(function() {
     });
 }, 2000);
 
-
+// updateItems();
 
 module.exports = null;
