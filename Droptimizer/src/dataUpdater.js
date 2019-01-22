@@ -1,6 +1,7 @@
 var express = require('express');
 var data = require('./data');
 var request = require('request');
+var simWorker = require('./simWorker');
 var blizzard  = require('blizzard.js').initialize({
     key: process.env.WOW_API_CLIENTID,
     secret: process.env.WOW_API_CLIENTSECRET,
@@ -167,11 +168,11 @@ setTimeout(function() {
         }
 
         setTimeout(function() {
-            updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4');
+            updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4'); // arwic
+            updateSimcReport('tbrHVDZPgEiMf5ykvXR1AU'); // bowbi
+            updateSimcReport('8QxcijEUsPGUN1G7pbr4MC'); // brbteabreaks
+            updateSimcReport('8QxcijEUsPGUN1G7pbr4MC');
         }, 2000);
-        setTimeout(function() {
-            updateSimcReport('tbrHVDZPgEiMf5ykvXR1AU');
-        }, 2000); 
     });
 }, 2000);
 
