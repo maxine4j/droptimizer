@@ -22,13 +22,7 @@ function init() {
                 level INTEGER NOT NULL,
                 thumbnail TEXT NOT NULL,
                 faction INTEGER NOT NULL,
-                guild TEXT NOT NULL,
-                baseDpsMean FLOAT DEFAULT 0, 
-                baseDpsMin FLOAT DEFAULT 0, 
-                baseDpsMax FLOAT DEFAULT 0, 
-                baseDpsStddev FLOAT DEFAULT 0, 
-                baseDpsMedian FLOAT DEFAULT 0,
-                baseDpsIterations INTEGER DEFAULT 0);`);
+                guild TEXT NOT NULL);`);
     db.run(`CREATE TABLE IF NOT EXISTS items 
                 (id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -46,6 +40,7 @@ function init() {
                 median FLOAT,
                 first_quartile FLOAT,
                 third_quartile FLOAT,
+                base_dps_mean FLOAT,
                 iterations INTEGER,
                 PRIMARY KEY (characterID, itemID));`);
 }

@@ -14,7 +14,7 @@ blizzard.getApplicationToken({
     origin: 'us'
 }).then(response => {
     blizzardToken = response.data.access_token;
-}).catch(e => console.error(e));
+}).catch(e => console.error("YEEEEEEEE"));
 
 function updateCharacter(charName, charRealm, charRegion) {
     blizzard.wow.character(['profile'], { origin: charRegion, realm: charRealm, name: charName, token: blizzardToken })
@@ -67,6 +67,7 @@ function updateAllCharacters() {
     });
 }
 
+/*
 function insertBaseDps(charID, baseDps) {
     let sql = `UPDATE characters SET 
         baseDpsMean=?, 
@@ -78,17 +79,22 @@ function insertBaseDps(charID, baseDps) {
         WHERE id=?;`
     let params = [
         baseDps.mean,
-        baseDps.min,
-        baseDps.max,
-        baseDps.std_dev,
-        baseDps.median,
-        baseDps.count,
-        charID
-    ]
-    data.db.run(sql, params);
+        2,
+        3,
+        4,
+        5,
+        6,
+        charID,
+    ];
+    console.log(charID, baseDps.mean);
+    data.db.run(sql, params, function(err){
+        console.log(err);
+        console.log(this.changes);
+    });
 }
+*/
 
-function insertUpgrade(charID, result) {
+function insertUpgrade(charID, result, baseDps) {
     let itemID = result.name.split('\/')[2];
     let sql = `INSERT OR REPLACE INTO upgrades(
         characterID,
@@ -101,7 +107,8 @@ function insertUpgrade(charID, result) {
         median,
         first_quartile,
         third_quartile,
-        iterations) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        base_dps_mean,
+        iterations) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     let params = [
         charID,
         itemID,
@@ -113,6 +120,7 @@ function insertUpgrade(charID, result) {
         result.median,
         result.first_quartile,
         result.third_quartile,
+        baseDps.mean,
         result.iterations,
     ];
     data.db.run(sql, params);
@@ -131,12 +139,12 @@ function parseSimcReport(report) {
         if (err || !row) {
             throw err;
         }
-        let charID = row.id;
+        //let charID = row.id;
         // update the characters base dps
-        insertBaseDps(charID, report.sim.players[0].collected_data.dps);
+        //insertBaseDps(charID, report.sim.players[0].collected_data.dps);
         // insert the upgrade into upgrades table
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
-            insertUpgrade(row.id, report.sim.profilesets.results[i]);
+            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps);
         }
     });
 }
@@ -220,6 +228,17 @@ setTimeout(function() {
     });
 }, 2000);
 
-// updateItems();
+setTimeout(function() {
+    sql = 'SELECT * FROM characters WHERE id=25;';
+    data.db.all(sql, [], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        console.log("YEEEET");
+        console.log(rows);
+    });
+}, 15000)
+
+//updateItems();
 
 module.exports = null;
