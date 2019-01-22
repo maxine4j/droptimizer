@@ -138,7 +138,6 @@ function updateItems() {
         if (response && response.statusCode == 200) {
             console.log('Got item data from raidbots');
             items = JSON.parse(body);
-            let doneCount = 0;
             data.db.run("BEGIN TRANSACTION");
             for (let i = 0; i < items.length; i++) {
                 let sql = 'INSERT OR REPLACE INTO items(id, name, icon, quality, itemLevel) VALUES (?, ?, ?, ?, ?);'
