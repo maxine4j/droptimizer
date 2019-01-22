@@ -22,7 +22,13 @@ function init() {
                 level INTEGER NOT NULL,
                 thumbnail TEXT NOT NULL,
                 faction INTEGER NOT NULL,
-                guild TEXT NOT NULL);`);
+                guild TEXT NOT NULL,
+                baseDpsMean FLOAT DEFAULT 0, 
+                baseDpsMin FLOAT DEFAULT 0, 
+                baseDpsMax FLOAT DEFAULT 0, 
+                baseDpsStddev FLOAT DEFAULT 0, 
+                baseDpsMedian FLOAT DEFAULT 0,
+                baseDpsIterations INTEGER DEFAULT 0);`);
     db.run(`CREATE TABLE IF NOT EXISTS items 
                 (id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,

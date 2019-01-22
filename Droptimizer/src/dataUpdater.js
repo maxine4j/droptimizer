@@ -67,6 +67,57 @@ function updateAllCharacters() {
     });
 }
 
+function insertBaseDps(charID, baseDps) {
+    let sql = `UPDATE characters SET 
+        baseDpsMean=?, 
+        baseDpsMin=?, 
+        baseDpsMax=?, 
+        baseDpsStddev=?, 
+        baseDpsMedian=?,
+        baseDpsIterations=?
+        WHERE id=?;`
+    let params = [
+        baseDps.mean,
+        baseDps.min,
+        baseDps.max,
+        baseDps.std_dev,
+        baseDps.median,
+        baseDps.count,
+        charID
+    ]
+    data.db.run(sql, params);
+}
+
+function insertUpgrade(charID, result) {
+    let itemID = result.name.split('\/')[2];
+    let sql = `INSERT OR REPLACE INTO upgrades(
+        characterID,
+        itemID,
+        name,
+        mean,
+        min,
+        max,
+        stddev,
+        median,
+        first_quartile,
+        third_quartile,
+        iterations) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+    let params = [
+        charID,
+        itemID,
+        result.name,
+        result.mean,
+        result.min,
+        result.max,
+        result.stddev,
+        result.median,
+        result.first_quartile,
+        result.third_quartile,
+        result.iterations,
+    ];
+    data.db.run(sql, params);
+}
+
 function parseSimcReport(report) {
     let charName = report.simbot.meta.rawFormData.character.name;
     let charRealm = report.simbot.meta.rawFormData.character.realm;
@@ -81,37 +132,11 @@ function parseSimcReport(report) {
             throw err;
         }
         let charID = row.id;
-        console.log('charID = ' + charID)
+        // update the characters base dps
+        insertBaseDps(charID, report.sim.players[0].collected_data.dps);
         // insert the upgrade into upgrades table
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
-            let result = report.sim.profilesets.results[i];
-            let itemID = result.name.split('\/')[2];
-            let sql = `INSERT OR REPLACE INTO upgrades(
-                characterID,
-                itemID,
-                name,
-                mean,
-                min,
-                max,
-                stddev,
-                median,
-                first_quartile,
-                third_quartile,
-                iterations) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-            let params = [
-                charID,
-                itemID,
-                result.name,
-                result.mean,
-                result.min,
-                result.max,
-                result.stddev,
-                result.median,
-                result.first_quartile,
-                result.third_quartile,
-                result.iterations,
-            ];
-            data.db.run(sql, params);
+            insertUpgrade(row.id, report.sim.profilesets.results[i]);
         }
     });
 }
@@ -191,7 +216,6 @@ setTimeout(function() {
             updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4'); // arwic
             updateSimcReport('tbrHVDZPgEiMf5ykvXR1AU'); // bowbi
             updateSimcReport('8QxcijEUsPGUN1G7pbr4MC'); // brbteabreaks
-            updateSimcReport('8QxcijEUsPGUN1G7pbr4MC');
         }, 2000);
     });
 }, 2000);
