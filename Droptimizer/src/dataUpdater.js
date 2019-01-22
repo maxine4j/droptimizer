@@ -14,7 +14,7 @@ blizzard.getApplicationToken({
     origin: 'us'
 }).then(response => {
     blizzardToken = response.data.access_token;
-}).catch(e => console.error("YEEEEEEEE"));
+}).catch(e => console.error(e));
 
 function updateCharacter(charName, charRealm, charRegion) {
     blizzard.wow.character(['profile'], { origin: charRegion, realm: charRealm, name: charName, token: blizzardToken })
@@ -227,17 +227,6 @@ setTimeout(function() {
         }, 2000);
     });
 }, 2000);
-
-setTimeout(function() {
-    sql = 'SELECT * FROM characters WHERE id=25;';
-    data.db.all(sql, [], (err, rows) => {
-        if (err) {
-            throw err;
-        }
-        console.log("YEEEET");
-        console.log(rows);
-    });
-}, 15000)
 
 //updateItems();
 

@@ -20,7 +20,7 @@ async function runSim(charName, charRealm, charRegion) {
         await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
         await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
         await browser.close();
-    }, 10000);
+    }, 3000);
 }
 
 //runSim('arwic', 'frostmourne', 'us');
