@@ -1,7 +1,8 @@
 var express = require('express');
 var data = require('./data');
 var request = require('request');
-var simWorker = require('./simWorker');
+const puppeteer = require('puppeteer');
+var CronJob = require('cron').CronJob;
 var blizzard  = require('blizzard.js').initialize({
     key: process.env.WOW_API_CLIENTID,
     secret: process.env.WOW_API_CLIENTSECRET,
@@ -67,33 +68,46 @@ function updateAllCharacters() {
     });
 }
 
-/*
-function insertBaseDps(charID, baseDps) {
-    let sql = `UPDATE characters SET 
-        baseDpsMean=?, 
-        baseDpsMin=?, 
-        baseDpsMax=?, 
-        baseDpsStddev=?, 
-        baseDpsMedian=?,
-        baseDpsIterations=?
-        WHERE id=?;`
-    let params = [
-        baseDps.mean,
-        2,
-        3,
-        4,
-        5,
-        6,
-        charID,
-    ];
-    console.log(charID, baseDps.mean);
-    data.db.run(sql, params, function(err){
-        console.log(err);
-        console.log(this.changes);
-    });
+async function runSim(charName, charRealm, charRegion) {
+    let uri = `https://www.raidbots.com/simbot/droptimizer?region=${charRegion}&realm=${charRealm}&name=${charName}`;
+    let cookies = [{
+        name: 'raidsid',
+        value: process.env.RAIDBOTS_COOKIE,
+        domain: 'www.raidbots.com',
+    }];
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setCookie(...cookies);
+    await page.goto(uri);
+    setTimeout(async function() {
+        // select BoD
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
+        // select mythic
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
+        // start the sim, twice bc it doesnt work otherwise
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
+        await page.waitForNavigation();
+        let reportID = page.url().split('/')[5];
+        await browser.close();
+        setTimeout(function() {
+            updateSimcReport(reportID);
+        },1000 * 60 * 5);
+    }, 3000);
 }
-*/
 
+function runAllCharSims() {
+    let sql = 'SELECT * FROM characters;';
+    data.db.all(sql, [], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        for (let i = 0; i < rows.length; i++) {
+            runSim(rows[i].name, rows[i].realm, rows[i].region);
+        }
+    });
+
+}
 function insertUpgrade(charID, result, baseDps) {
     let itemID = result.name.split('\/')[2];
     let sql = `INSERT OR REPLACE INTO upgrades(
@@ -139,10 +153,6 @@ function parseSimcReport(report) {
         if (err || !row) {
             throw err;
         }
-        //let charID = row.id;
-        // update the characters base dps
-        //insertBaseDps(charID, report.sim.players[0].collected_data.dps);
-        // insert the upgrade into upgrades table
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
             insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps);
         }
@@ -185,49 +195,54 @@ function updateItems() {
     });
 }
 
-setTimeout(function() {
-    let sql = 'SELECT * FROM characters;';
-    data.db.all(sql, [], (err, rows) => {
-        if (rows.length == 0) {
-            updateCharacter('arwic', 'frostmourne', 'us'); 
-            updateCharacter('bowbi', 'frostmourne', 'us'); 
-            updateCharacter('monkaxd', 'frostmourne', 'us'); 
-            updateCharacter('subjugates', 'frostmourne', 'us'); 
-            updateCharacter('kharahh', 'frostmourne', 'us'); 
-            updateCharacter('datspank', 'frostmourne', 'us'); 
-            updateCharacter('astios', 'frostmourne', 'us'); 
-            updateCharacter('solarhands', 'frostmourne', 'us'); 
-            updateCharacter('gayke', 'frostmourne', 'us'); 
-            updateCharacter('sadwoofer', 'frostmourne', 'us'); 
-            updateCharacter('cleavergreen', 'frostmourne', 'us'); 
-            updateCharacter('bwobets', 'frostmourne', 'us'); 
-            updateCharacter('dasit', 'frostmourne', 'us'); 
-            updateCharacter('sslay', 'frostmourne', 'us'); 
-            updateCharacter('vietmonks', 'frostmourne', 'us'); 
-            updateCharacter('Nivektis', 'frostmourne', 'us'); 
-            updateCharacter('ptolemy', 'frostmourne', 'us'); 
-            updateCharacter('stollas', 'frostmourne', 'us'); 
-            updateCharacter('lightzlightt', 'frostmourne', 'us'); 
-            updateCharacter('agreatname', 'frostmourne', 'us'); 
-            updateCharacter('kitteriel', 'frostmourne', 'us'); 
-            updateCharacter('procreated', 'frostmourne', 'us'); 
-            updateCharacter('bbltransfmnz', 'frostmourne', 'us'); 
-            updateCharacter('zezek', 'frostmourne', 'us'); 
-            updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
-            updateCharacter('peroxíde', 'frostmourne', 'us'); 
-            updateCharacter('meggers', 'frostmourne', 'us'); 
-        } else {
-            updateAllCharacters();
-        }
+function addCharacters() {
+    setTimeout(function() {
+        updateCharacter('arwic', 'frostmourne', 'us'); 
+        updateCharacter('bowbi', 'frostmourne', 'us'); 
+        updateCharacter('monkaxd', 'frostmourne', 'us'); 
+        updateCharacter('subjugates', 'frostmourne', 'us'); 
+        updateCharacter('kharahh', 'frostmourne', 'us'); 
+        updateCharacter('datspank', 'frostmourne', 'us'); 
+        updateCharacter('astios', 'frostmourne', 'us'); 
+        updateCharacter('solarhands', 'frostmourne', 'us'); 
+        updateCharacter('gayke', 'frostmourne', 'us'); 
+        updateCharacter('sadwoofer', 'frostmourne', 'us'); 
+        updateCharacter('cleavergreen', 'frostmourne', 'us'); 
+        updateCharacter('bwobets', 'frostmourne', 'us'); 
+        updateCharacter('dasit', 'frostmourne', 'us'); 
+        updateCharacter('sslay', 'frostmourne', 'us'); 
+        updateCharacter('vietmonks', 'frostmourne', 'us'); 
+        updateCharacter('Nivektis', 'frostmourne', 'us'); 
+        updateCharacter('ptolemy', 'frostmourne', 'us'); 
+        updateCharacter('stollas', 'frostmourne', 'us'); 
+        updateCharacter('lightzlightt', 'frostmourne', 'us'); 
+        updateCharacter('agreatname', 'frostmourne', 'us'); 
+        updateCharacter('kitteriel', 'frostmourne', 'us'); 
+        updateCharacter('procreated', 'frostmourne', 'us'); 
+        updateCharacter('bbltransfmnz', 'frostmourne', 'us'); 
+        updateCharacter('zezek', 'frostmourne', 'us'); 
+        updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
+        updateCharacter('peroxíde', 'frostmourne', 'us'); 
+        updateCharacter('meggers', 'frostmourne', 'us'); 
+    }, 5000);
+}
 
-        setTimeout(function() {
-            updateSimcReport('6Us9gjb6hNd3QVJEmfwrc4'); // arwic
-            updateSimcReport('tbrHVDZPgEiMf5ykvXR1AU'); // bowbi
-            updateSimcReport('8QxcijEUsPGUN1G7pbr4MC'); // brbteabreaks
-        }, 2000);
+function createCronJobs() {
+    let cron_characterUpdate = new CronJob('* * * * *', function() {
+        console.log("CRON: Updating Characters");
+        updateAllCharacters();
     });
-}, 2000);
+    cron_characterUpdate.start();
 
-//updateItems();
+    // start new droptimizer sims at 3:00am every day
+    let cron_startSims = new CronJob('0 3 * * *', function() {
+        console.log("CRON: Running character sims");
+        runAllCharSims();
+    });
+    cron_startSims.start();
+}
+
+addCharacters();
+createCronJobs();
 
 module.exports = null;
