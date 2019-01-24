@@ -69,6 +69,7 @@ function updateAllCharacters() {
 }
 
 async function runSim(charName, charRealm, charRegion) {
+    console.log(`Running sim for ${charName}-${charRealm}-${charRegion}`);
     let uri = `https://www.raidbots.com/simbot/droptimizer?region=${charRegion}&realm=${charRealm}&name=${charName}`;
     let cookies = [{
         name: 'raidsid',
@@ -97,13 +98,18 @@ async function runSim(charName, charRealm, charRegion) {
 }
 
 function runAllCharSims() {
+    let lastDelay = 0;
+    let delayGap = 10000;
     let sql = 'SELECT * FROM characters;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
             throw err;
         }
         for (let i = 0; i < rows.length; i++) {
-            runSim(rows[i].name, rows[i].realm, rows[i].region);
+            setTimeout(function() {
+                runSim(rows[i].name, rows[i].realm, rows[i].region);
+            }, lastDelay);
+            lastDelay += delayGap;
         }
     });
 
