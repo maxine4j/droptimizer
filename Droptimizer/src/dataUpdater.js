@@ -290,7 +290,7 @@ router.get('/character/:charRegion/:charRealm/:charName', function(req, res, nex
 });
 
 router.get('/all/character$', function(req, res, next) {
-    updateCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
+    updateAllCharacters();
     res.json(`All characters have been updated.`);
 });
 
