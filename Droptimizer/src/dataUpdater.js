@@ -83,6 +83,7 @@ async function runSim(charName, charRealm, charRegion) {
         setTimeout(function() {
             runSim(charName, charRealm, charRegion);
         }, 60 * 1000);
+        return;
     });
     const page = await browser.newPage();
     await page.setCookie(...cookies);
