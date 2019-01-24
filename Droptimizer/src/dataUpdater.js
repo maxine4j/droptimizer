@@ -269,7 +269,7 @@ createCronJobs();
 
 router.get('/sim/:charRegion/:charRealm/:charName', function(req, res, next) {
     runSim(req.params.charName, req.params.charRealm, req.params.charRegion);
-    res.json("Sim Started. New upgrades should be ready in 3 minutes.");
+    res.json(`Sim Started for ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion}. New upgrades should be ready in 3 minutes.`);
 });
 
 module.exports = router;
