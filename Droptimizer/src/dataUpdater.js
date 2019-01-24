@@ -4,14 +4,14 @@ var request = require('request');
 const puppeteer = require('puppeteer');
 var CronJob = require('cron').CronJob;
 var blizzard  = require('blizzard.js').initialize({
-    key: '667dab4ea0f440e4826b2d7534e933ff',
-    secret: 'vzrrUn3zxh7s9hOY7iLhgru3fLQR59Vs',
+    key: process.env.WOW_API_CLIENTID,
+    secret: process.env.WOW_API_CLIENTSECRET,
     origin: 'us',
 });
 var blizzardToken = '';
 blizzard.getApplicationToken({
-    key: '667dab4ea0f440e4826b2d7534e933ff',
-    secret: 'vzrrUn3zxh7s9hOY7iLhgru3fLQR59Vs',
+    key: process.env.WOW_API_CLIENTID,
+    secret: process.env.WOW_API_CLIENTSECRET,
     origin: 'us'
 }).then(response => {
     blizzardToken = response.data.access_token;
@@ -244,6 +244,5 @@ function createCronJobs() {
 
 addCharacters();
 createCronJobs();
-//updateItems();
 
 module.exports = null;
