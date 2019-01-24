@@ -101,13 +101,13 @@ async function runSim(charName, charRealm, charRegion) {
         await browser.close();
         setTimeout(function() {
             updateSimcReport(reportID);
-        },1000 * 60 * 5);
+        },1000 * 60 * 10); // let raidbots have 10 mins to process the sim
     }, 3000);
 }
 
 function runAllCharSims() {
     let lastDelay = 0;
-    let delayGap = 60 * 1000; // 1 min delay between starting sims
+    let delayGap = 60 * 1000 * 5; // 5 min delay between starting sims
     let sql = 'SELECT * FROM characters;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
@@ -277,6 +277,21 @@ createCronJobs();
 router.get('/sim/:charRegion/:charRealm/:charName', function(req, res, next) {
     runSim(req.params.charName, req.params.charRealm, req.params.charRegion);
     res.json(`Sim Started for ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion}. New upgrades should be ready in 5 minutes.`);
+});
+
+router.get('/all/sim$', function(req, res, next) {
+    runAllCharSims();
+    res.json(`Sim started for all characters. This could take a while.`);
+});
+
+router.get('/character/:charRegion/:charRealm/:charName', function(req, res, next) {
+    updateCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
+    res.json(`Character ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion} has been updated.`);
+});
+
+router.get('/all/character$', function(req, res, next) {
+    updateCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
+    res.json(`All characters have been updated.`);
 });
 
 module.exports = router;
