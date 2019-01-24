@@ -195,7 +195,8 @@ function updateItems() {
     });
 }
 
-function addCharacters() {
+function firstStart() {
+    // run everything once on first start
     setTimeout(function() {
         updateCharacter('arwic', 'frostmourne', 'us'); 
         updateCharacter('bowbi', 'frostmourne', 'us'); 
@@ -224,11 +225,15 @@ function addCharacters() {
         updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
         updateCharacter('peroxíde', 'frostmourne', 'us'); 
         updateCharacter('meggers', 'frostmourne', 'us'); 
+
+        updateItems();
+        runAllCharSims();
     }, 5000);
 }
 
 function createCronJobs() {
-    let cron_characterUpdate = new CronJob('* * * * *', function() {
+    // update all characters every hour
+    let cron_characterUpdate = new CronJob('* 1 * * *', function() {
         console.log("CRON: Updating Characters");
         updateAllCharacters();
     });
@@ -240,9 +245,16 @@ function createCronJobs() {
         runAllCharSims();
     });
     cron_startSims.start();
+
+    // update items at 3:00am every day
+    let cron_updateItems = new CronJob('0 3 * * *', function() {
+        console.log("CRON: Updating items");
+        updateItems();
+    });
+    cron_updateItems.start();
 }
 
-addCharacters();
+firstStart();
 createCronJobs();
 
 module.exports = null;
