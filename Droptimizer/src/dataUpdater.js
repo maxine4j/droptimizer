@@ -77,7 +77,13 @@ async function runSim(charName, charRealm, charRegion) {
         value: process.env.RAIDBOTS_COOKIE,
         domain: 'www.raidbots.com',
     }];
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch().catch(function() {
+        // if the browser failed to start, then recall this sim in 1 minute
+        console.warn('Failed to start a new browser, will retry in 1 minute');
+        setTimeout(function() {
+            runSim(charName, charRealm, charRegion);
+        }, 60 * 1000);
+    });
     const page = await browser.newPage();
     await page.setCookie(...cookies);
     await page.goto(uri);
