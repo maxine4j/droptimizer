@@ -1,8 +1,9 @@
 var express = require('express');
 var data = require('./data');
 var request = require('request');
-const puppeteer = require('puppeteer');
+var puppeteer = require('puppeteer');
 var CronJob = require('cron').CronJob;
+var router = express.Router();
 var blizzard  = require('blizzard.js').initialize({
     key: process.env.WOW_API_CLIENTID,
     secret: process.env.WOW_API_CLIENTSECRET,
@@ -99,7 +100,7 @@ async function runSim(charName, charRealm, charRegion) {
 
 function runAllCharSims() {
     let lastDelay = 0;
-    let delayGap = 10000;
+    let delayGap = 60 * 1000; // 1 min delay between starting sims
     let sql = 'SELECT * FROM characters;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
@@ -236,7 +237,7 @@ function firstStart() {
         updateCharacter('meggers', 'frostmourne', 'us'); 
 
         updateItems();
-        runAllCharSims();
+        //runAllCharSims();
     }, 5000);
 }
 
@@ -266,4 +267,9 @@ function createCronJobs() {
 firstStart();
 createCronJobs();
 
-module.exports = null;
+router.get('/sim/:charRegion/:charRealm/:charName', function(req, res, next) {
+    runSim(req.params.charName, req.params.charRealm, req.params.charRegion);
+    res.json("Sim Started. New upgrades should be ready in 3 minutes.");
+});
+
+module.exports = router;

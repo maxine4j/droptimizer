@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var data = require('./data');
-var dataUpadter = require('./dataUpdater');
 
 // gets all characters
 router.get('/$', function(req, res, next) {

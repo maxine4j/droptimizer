@@ -8,6 +8,7 @@ var cors = require('cors');
 var characterRoutes = require('./src/characterRoutes');
 var upgradeRoutes = require('./src/upgradeRoutes');
 var itemRoutes = require('./src/itemRoutes');
+var dataUpadter = require('./src/dataUpdater');
 
 var app = express();
 
@@ -21,6 +22,7 @@ app.use(cors());
 app.use('/1/character', characterRoutes);
 app.use('/1/upgrade', upgradeRoutes);
 app.use('/1/item', itemRoutes);
+app.use('/1/update', dataUpadter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
