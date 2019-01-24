@@ -235,9 +235,6 @@ function firstStart() {
         updateCharacter('peroxíde', 'frostmourne', 'us'); 
         updateCharacter('meggers', 'frostmourne', 'us'); 
 
-        updateSimcReport('35sQqLu14oAGLX3UUZWG9B')
-
-
         updateItems();
         runAllCharSims();
     }, 5000);
