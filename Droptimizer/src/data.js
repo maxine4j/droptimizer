@@ -42,6 +42,7 @@ function init() {
                 third_quartile FLOAT,
                 base_dps_mean FLOAT,
                 iterations INTEGER,
+                reportID TEXT,
                 PRIMARY KEY (characterID, itemID));`);
 }
 

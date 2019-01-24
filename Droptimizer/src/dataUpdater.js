@@ -114,7 +114,7 @@ function runAllCharSims() {
     });
 
 }
-function insertUpgrade(charID, result, baseDps) {
+function insertUpgrade(charID, result, baseDps, reportID) {
     let itemID = result.name.split('\/')[2];
     let sql = `INSERT OR REPLACE INTO upgrades(
         characterID,
@@ -128,7 +128,8 @@ function insertUpgrade(charID, result, baseDps) {
         first_quartile,
         third_quartile,
         base_dps_mean,
-        iterations) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        iterations,
+        reportID) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     let params = [
         charID,
         itemID,
@@ -142,11 +143,12 @@ function insertUpgrade(charID, result, baseDps) {
         result.third_quartile,
         baseDps.mean,
         result.iterations,
+        reportID
     ];
     data.db.run(sql, params);
 }
 
-function parseSimcReport(report) {
+function parseSimcReport(report, reportID) {
     let charName = report.simbot.meta.rawFormData.character.name;
     let charRealm = report.simbot.meta.rawFormData.character.realm;
     let charRegion = 'us';
@@ -160,12 +162,13 @@ function parseSimcReport(report) {
             throw err;
         }
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
-            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps);
+            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps, reportID);
         }
     });
 }
 
 function fetchSimcReport(reportID, callback) {
+    console.log(`Fetching raidbots report ${reportID}`);
     let uri = `https://www.raidbots.com/reports/${reportID}/data.json`;
     request.get(uri, function(error, response, body) {
         if (response && response.statusCode == 200) {
@@ -178,7 +181,7 @@ function fetchSimcReport(reportID, callback) {
 }
 
 function updateSimcReport(reportID) {
-    fetchSimcReport(reportID, report => parseSimcReport(report));
+    fetchSimcReport(reportID, report => parseSimcReport(report, reportID));
 }
 
 function updateItems() {
@@ -231,6 +234,9 @@ function firstStart() {
         updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
         updateCharacter('peroxíde', 'frostmourne', 'us'); 
         updateCharacter('meggers', 'frostmourne', 'us'); 
+
+        updateSimcReport('35sQqLu14oAGLX3UUZWG9B')
+
 
         updateItems();
         runAllCharSims();
