@@ -93,6 +93,15 @@ async function runSim(charName, charRealm, charRegion) {
         await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
         // select mythic
         await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
+        // set reorigination array stacks to 0
+        // open sim options
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)');
+        // click the array stacks drop down
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select');
+        // press down arrow to select 0 from dropdown
+        await page.keyboard.press('ArrowDown');
+        // press enter to confirm selection
+        await page.keyboard.press('Enter');
         // start the sim, twice bc it doesnt work otherwise
         await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
         await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
