@@ -131,7 +131,7 @@ function runAllCharSims() {
     });
 
 }
-function insertUpgrade(charID, result, baseDps, reportID) {
+function insertUpgrade(charID, result, baseDps, reportID, spec) {
     let itemID = result.name.split('\/')[2];
     let sql = `INSERT OR REPLACE INTO upgrades(
         characterID,
@@ -146,7 +146,8 @@ function insertUpgrade(charID, result, baseDps, reportID) {
         third_quartile,
         base_dps_mean,
         iterations,
-        reportID) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        reportID,
+        spec) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     let params = [
         charID,
         itemID,
@@ -160,7 +161,8 @@ function insertUpgrade(charID, result, baseDps, reportID) {
         result.third_quartile,
         baseDps.mean,
         result.iterations,
-        reportID
+        reportID,
+        spec
     ];
     data.db.run(sql, params);
 }
@@ -179,7 +181,7 @@ function parseSimcReport(report, reportID) {
             throw err;
         }
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
-            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps, reportID);
+            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps, reportID, report.sim.players[0].specialization);
         }
     });
 }
