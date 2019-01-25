@@ -283,6 +283,11 @@ function createCronJobs() {
 firstStart();
 createCronJobs();
 
+router.get('/report/:reportID', function(req, res, next) {
+    updateSimcReport(req.params.reportID);
+    res.json(`Parsing report with id ${req.params.reportID}`);
+});
+
 router.get('/sim/:charRegion/:charRealm/:charName', function(req, res, next) {
     runSim(req.params.charName, req.params.charRealm, req.params.charRegion);
     res.json(`Sim Started for ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion}. New upgrades should be ready in 5 minutes.`);
