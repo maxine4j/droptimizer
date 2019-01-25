@@ -44,6 +44,7 @@ function init() {
                 iterations INTEGER,
                 reportID TEXT,
                 spec TEXT,
+                timeStamp INTEGER,
                 PRIMARY KEY (characterID, itemID));`);
 }
 
