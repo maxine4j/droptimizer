@@ -43,6 +43,8 @@ function init() {
                 base_dps_mean FLOAT,
                 iterations INTEGER,
                 reportID TEXT,
+                spec TEXT,
+                timeStamp INTEGER,
                 PRIMARY KEY (characterID, itemID));`);
 }
 

@@ -132,7 +132,7 @@ function runAllCharSims() {
     });
 
 }
-function insertUpgrade(charID, result, baseDps, reportID) {
+function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
     let itemID = result.name.split('\/')[2];
     let sql = `INSERT OR REPLACE INTO upgrades(
         characterID,
@@ -147,7 +147,9 @@ function insertUpgrade(charID, result, baseDps, reportID) {
         third_quartile,
         base_dps_mean,
         iterations,
-        reportID) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        reportID,
+        spec,
+        timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     let params = [
         charID,
         itemID,
@@ -161,7 +163,9 @@ function insertUpgrade(charID, result, baseDps, reportID) {
         result.third_quartile,
         baseDps.mean,
         result.iterations,
-        reportID
+        reportID,
+        spec,
+        timeStamp
     ];
     data.db.run(sql, params);
 }
@@ -180,7 +184,7 @@ function parseSimcReport(report, reportID) {
             throw err;
         }
         for (var i = 0; i < report.sim.profilesets.results.length; i++) {
-            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps, reportID);
+            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps, reportID, report.sim.players[0].specialization, report.simbot.date);
         }
     });
 }
@@ -286,6 +290,11 @@ function createCronJobs() {
 
 firstStart();
 createCronJobs();
+
+router.get('/report/:reportID', function(req, res, next) {
+    updateSimcReport(req.params.reportID);
+    res.json(`Parsing report with id ${req.params.reportID}`);
+});
 
 router.get('/sim/:charRegion/:charRealm/:charName', function(req, res, next) {
     runSim(req.params.charName, req.params.charRealm, req.params.charRegion);
