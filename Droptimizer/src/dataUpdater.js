@@ -179,11 +179,17 @@ function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
         let sql = `SELECT mean FROM upgrades WHERE characterID=?;`
         let params = [charID];
         data.db.get(sql, params, function(err, row) {
+            console.log(`Azerite item "${result.name}"`);
             if (row) {
+                console.log(`Azerite item "${result.name}": Row already exists`);
                 // only insert the new data if it has a higher dps mean than the current
                 if (row.mean < result.mean) {
+                    console.log(`Azerite item "${result.name}": Overwriting (cur=${row.mean} < new=${result.mean})`);
                     _insertData();
                 }
+            } else {
+                console.log(`Azerite item "${result.name}: No data found yet, inserting`);
+                _insertData();
             }
         });
     } else {
