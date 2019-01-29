@@ -136,100 +136,56 @@ function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
     let nameParts = result.name.split('\/')
     let itemID = nameParts[2];
 
-    function _updateData() {
-        let sql = `UPDATE upgrades SET
-            name=?,
-            mean=?,
-            min=?,
-            max=?,
-            stddev=?,
-            median=?,
-            first_quartile=?,
-            third_quartile=?,
-            base_dps_mean=?,
-            iterations=?,
-            reportID=?,
-            spec=?,
-            timeStamp=?
-            WHERE characterID=? AND itemID=?;`;
-        let params = [
-            result.name,
-            result.mean,
-            result.min,
-            result.max,
-            result.stddev,
-            result.median,
-            result.first_quartile,
-            result.third_quartile,
-            baseDps.mean,
-            result.iterations,
-            reportID,
-            spec,
-            timeStamp,
-            charID,
-            itemID
-        ];
-        data.db.run(sql, params);
-    }
+    let sql = `INSERT OR REPLACE INTO upgrades(
+        characterID,
+        itemID,
+        name,
+        mean,
+        min,
+        max,
+        stddev,
+        median,
+        first_quartile,
+        third_quartile,
+        base_dps_mean,
+        iterations,
+        reportID,
+        spec,
+        timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-    function _insertData() {
-        let sql = `INSERT OR REPLACE INTO upgrades(
-            characterID,
-            itemID,
-            name,
-            mean,
-            min,
-            max,
-            stddev,
-            median,
-            first_quartile,
-            third_quartile,
-            base_dps_mean,
-            iterations,
-            reportID,
-            spec,
-            timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-        let params = [
-            charID,
-            itemID,
-            result.name,
-            result.mean,
-            result.min,
-            result.max,
-            result.stddev,
-            result.median,
-            result.first_quartile,
-            result.third_quartile,
-            baseDps.mean,
-            result.iterations,
-            reportID,
-            spec,
-            timeStamp
-        ];
-        data.db.run(sql, params);
-    }
+    let params = [
+        charID,
+        itemID,
+        result.name,
+        result.mean,
+        result.min,
+        result.max,
+        result.stddev,
+        result.median,
+        result.first_quartile,
+        result.third_quartile,
+        baseDps.mean,
+        result.iterations,
+        reportID,
+        spec,
+        timeStamp
+    ];
 
     // check if this item is an azerite piece
     // if it is we can have multiple sims with the same item id
     if (nameParts.length === 6) {
-        let sql = `SELECT mean FROM upgrades WHERE characterID=?;`
-        let params = [charID];
-        data.db.get(sql, params, function(err, row) {
-            console.log(`Azerite item "${result.name}"`);
-            if (row) {
-                console.log(`Azerite item "${result.name}": Row already exists`);
+        data.db.get('SELECT * FROM upgrades WHERE characterID=? AND itemID=?;', [charID, itemID], function(err, row) {
+            if (row !== null && row !== undefined) {
                 // only insert the new data if it has a higher dps mean than the current
                 if (row.mean < result.mean) {
-                    console.log(`Azerite item "${result.name}": Overwriting (cur=${row.mean} < new=${result.mean})`);
-                    _updateData();
+                    data.db.run(sql, params);
                 }
             } else {
-                console.log(`Azerite item "${result.name}: No data found yet, inserting`);
-                _insertData();
+                data.db.run(sql, params);
             }
         });
     } else {
-        _insertData();
+        data.db.run(sql, params);
     }
 }
 
@@ -275,13 +231,13 @@ function updateItems() {
         if (response && response.statusCode === 200) {
             console.log('Got item data from raidbots');
             items = JSON.parse(body);
-            data.db.run("BEGIN TRANSACTION");
+            data.db.run("BEGIN TRANSACTION;");
             for (let i = 0; i < items.length; i++) {
                 let sql = 'INSERT OR REPLACE INTO items(id, name, icon, quality, itemLevel) VALUES (?, ?, ?, ?, ?);'
                 let params = [items[i].id, items[i].name, items[i].icon, items[i].quality, items[i].itemLevel];
                 data.db.run(sql, params);
             }
-            data.db.run("COMMIT");
+            data.db.run("COMMIT TRANSACTION;");
             console.log(`${items.length} items updated`);
         } else {
             console.error(error);
