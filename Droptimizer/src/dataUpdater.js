@@ -83,35 +83,36 @@ async function runSim(charName, charRealm, charRegion) {
         setTimeout(function() {
             runSim(charName, charRealm, charRegion);
         }, 60 * 1000);
-        return;
     });
-    const page = await browser.newPage();
-    await page.setCookie(...cookies);
-    await page.goto(uri);
-    setTimeout(async function() {
-        // select BoD
-        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
-        // select mythic
-        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
-        // set reorigination array stacks to 0
-        // open sim options
-        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)');
-        // click the array stacks drop down
-        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select');
-        // press down arrow to select 0 from dropdown
-        await page.keyboard.press('ArrowDown');
-        // press enter to confirm selection
-        await page.keyboard.press('Enter');
-        // start the sim, twice bc it doesnt work otherwise
-        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
-        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
-        await page.waitForNavigation();
-        let reportID = page.url().split('/')[5];
-        await browser.close();
-        setTimeout(function() {
-            updateSimcReport(reportID);
-        },1000 * 60 * 10); // let raidbots have 10 mins to process the sim
-    }, 3000);
+    if (browser !== null) {
+        const page = await browser.newPage();
+        await page.setCookie(...cookies);
+        await page.goto(uri);
+        setTimeout(async function() {
+            // select BoD
+            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
+            // select mythic
+            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
+            // set reorigination array stacks to 0
+            // open sim options
+            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)');
+            // click the array stacks drop down
+            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select');
+            // press down arrow to select 0 from dropdown
+            await page.keyboard.press('ArrowDown');
+            // press enter to confirm selection
+            await page.keyboard.press('Enter');
+            // start the sim, twice bc it doesnt work otherwise
+            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
+            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
+            await page.waitForNavigation();
+            let reportID = page.url().split('/')[5];
+            await browser.close();
+            setTimeout(function() {
+                updateSimcReport(reportID);
+            },1000 * 60 * 10); // let raidbots have 10 mins to process the sim
+        }, 3000);
+    }
 }
 
 function runAllCharSims() {
