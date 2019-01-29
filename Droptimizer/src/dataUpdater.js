@@ -133,60 +133,64 @@ function runAllCharSims() {
 
 }
 function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
-    let nameParts = result.name.split('\/')
-    let itemID = nameParts[2];
+    function _insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
+        let nameParts = result.name.split('\/')
+        let itemID = nameParts[2];
 
-    let sql = `INSERT OR REPLACE INTO upgrades(
-        characterID,
-        itemID,
-        name,
-        mean,
-        min,
-        max,
-        stddev,
-        median,
-        first_quartile,
-        third_quartile,
-        base_dps_mean,
-        iterations,
-        reportID,
-        spec,
-        timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        let sql = `INSERT OR REPLACE INTO upgrades(
+            characterID,
+            itemID,
+            name,
+            mean,
+            min,
+            max,
+            stddev,
+            median,
+            first_quartile,
+            third_quartile,
+            base_dps_mean,
+            iterations,
+            reportID,
+            spec,
+            timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-    let params = [
-        charID,
-        itemID,
-        result.name,
-        result.mean,
-        result.min,
-        result.max,
-        result.stddev,
-        result.median,
-        result.first_quartile,
-        result.third_quartile,
-        baseDps.mean,
-        result.iterations,
-        reportID,
-        spec,
-        timeStamp
-    ];
+        let params = [
+            charID,
+            itemID,
+            result.name,
+            result.mean,
+            result.min,
+            result.max,
+            result.stddev,
+            result.median,
+            result.first_quartile,
+            result.third_quartile,
+            baseDps.mean,
+            result.iterations,
+            reportID,
+            spec,
+            timeStamp
+        ];
 
-    // check if this item is an azerite piece
-    // if it is we can have multiple sims with the same item id
-    if (nameParts.length === 6) {
-        data.db.get('SELECT * FROM upgrades WHERE characterID=? AND itemID=?;', [charID, itemID], function(err, row) {
-            if (row !== null && row !== undefined) {
-                // only insert the new data if it has a higher dps mean than the current
-                if (row.mean < result.mean) {
+        // check if this item is an azerite piece
+        // if it is we can have multiple sims with the same item id
+        if (nameParts.length === 6) {
+            data.db.get('SELECT * FROM upgrades WHERE characterID=? AND itemID=?;', [charID, itemID], function(err, row) {
+                if (row !== null && row !== undefined) {
+                    // only insert the new data if it has a higher dps mean than the current
+                    if (row.mean < result.mean) {
+                        data.db.run(sql, params);
+                    }
+                } else {
                     data.db.run(sql, params);
                 }
-            } else {
-                data.db.run(sql, params);
-            }
-        });
-    } else {
-        data.db.run(sql, params);
+            });
+        } else {
+            data.db.run(sql, params);
+        }
     }
+    _insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp);
+    _insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp);
 }
 
 function parseSimcReport(report, reportID) {
