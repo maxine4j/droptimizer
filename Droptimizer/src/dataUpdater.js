@@ -187,6 +187,8 @@ function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
     } else {
         data.db.run(sql, params);
     }
+
+    insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp); // xd
 }
 
 function parseSimcReport(report, reportID) {
