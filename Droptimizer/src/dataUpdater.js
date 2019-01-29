@@ -193,7 +193,7 @@ function fetchSimcReport(reportID, callback) {
     console.log(`Fetching raidbots report ${reportID}`);
     let uri = `https://www.raidbots.com/reports/${reportID}/data.json`;
     request.get(uri, function(error, response, body) {
-        if (response && response.statusCode == 200) {
+        if (response && response.statusCode === 200) {
             bodyObj = JSON.parse(body);
             callback(bodyObj);
         } else {
@@ -209,7 +209,7 @@ function updateSimcReport(reportID) {
 function updateItems() {
     let uri = 'https://www.raidbots.com/static/data/live/equippable-items.json';
     request.get(uri, function(error, response, body) {
-        if (response && response.statusCode == 200) {
+        if (response && response.statusCode === 200) {
             console.log('Got item data from raidbots');
             items = JSON.parse(body);
             data.db.run("BEGIN TRANSACTION");
