@@ -251,6 +251,9 @@ function firstStart() {
         updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
         updateCharacter('peroxíde', 'frostmourne', 'us'); 
         updateCharacter('meggers', 'frostmourne', 'us'); 
+        updateCharacter('fitme', 'frostmourne', 'us'); 
+        updateCharacter('solarburst', 'frostmourne', 'us'); 
+        updateCharacter('tarana', 'frostmourne', 'us'); 
 
         updateItems();
         //runAllCharSims();
