@@ -136,6 +136,42 @@ function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
     let nameParts = result.name.split('\/')
     let itemID = nameParts[2];
 
+    function _updateData() {
+        let sql = `UPDATE upgrades SET
+            name=?,
+            mean=?,
+            min=?,
+            max=?,
+            stddev=?,
+            median=?,
+            first_quartile=?,
+            third_quartile=?,
+            base_dps_mean=?,
+            iterations=?,
+            reportID=?,
+            spec=?,
+            timeStamp=?
+            WHERE characterID=? AND itemID=?;`;
+        let params = [
+            result.name,
+            result.mean,
+            result.min,
+            result.max,
+            result.stddev,
+            result.median,
+            result.first_quartile,
+            result.third_quartile,
+            baseDps.mean,
+            result.iterations,
+            reportID,
+            spec,
+            timeStamp,
+            charID,
+            itemID
+        ];
+        data.db.run(sql, params);
+    }
+
     function _insertData() {
         let sql = `INSERT OR REPLACE INTO upgrades(
             characterID,
@@ -185,7 +221,7 @@ function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
                 // only insert the new data if it has a higher dps mean than the current
                 if (row.mean < result.mean) {
                     console.log(`Azerite item "${result.name}": Overwriting (cur=${row.mean} < new=${result.mean})`);
-                    _insertData();
+                    _updateData();
                 }
             } else {
                 console.log(`Azerite item "${result.name}: No data found yet, inserting`);
