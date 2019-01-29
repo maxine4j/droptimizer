@@ -84,7 +84,7 @@ async function runSim(charName, charRealm, charRegion) {
             runSim(charName, charRealm, charRegion);
         }, 60 * 1000);
     });
-    if (browser !== null) {
+    if (browser !== undefined && browser !== null) {
         const page = await browser.newPage();
         await page.setCookie(...cookies);
         await page.goto(uri);
