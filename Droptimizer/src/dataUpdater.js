@@ -133,41 +133,62 @@ function runAllCharSims() {
 
 }
 function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
-    let itemID = result.name.split('\/')[2];
-    let sql = `INSERT OR REPLACE INTO upgrades(
-        characterID,
-        itemID,
-        name,
-        mean,
-        min,
-        max,
-        stddev,
-        median,
-        first_quartile,
-        third_quartile,
-        base_dps_mean,
-        iterations,
-        reportID,
-        spec,
-        timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-    let params = [
-        charID,
-        itemID,
-        result.name,
-        result.mean,
-        result.min,
-        result.max,
-        result.stddev,
-        result.median,
-        result.first_quartile,
-        result.third_quartile,
-        baseDps.mean,
-        result.iterations,
-        reportID,
-        spec,
-        timeStamp
-    ];
-    data.db.run(sql, params);
+    let nameParts = result.name.split('\/')
+    let itemID = nameParts[2];
+
+    function _insertData() {
+        let sql = `INSERT OR REPLACE INTO upgrades(
+            characterID,
+            itemID,
+            name,
+            mean,
+            min,
+            max,
+            stddev,
+            median,
+            first_quartile,
+            third_quartile,
+            base_dps_mean,
+            iterations,
+            reportID,
+            spec,
+            timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        let params = [
+            charID,
+            itemID,
+            result.name,
+            result.mean,
+            result.min,
+            result.max,
+            result.stddev,
+            result.median,
+            result.first_quartile,
+            result.third_quartile,
+            baseDps.mean,
+            result.iterations,
+            reportID,
+            spec,
+            timeStamp
+        ];
+        data.db.run(sql, params);
+    }
+
+    // check if this item is an azerite piece
+    // if it is we can have multiple sims with the same item id
+    if (nameParts.length === 6) {
+        let sql = `SELECT mean FROM upgrades WHERE characterID=?;`
+        let params = [charID];
+        data.db.get(sql, params, function(err, row) {
+            if (row) {
+                // only insert the new data if it has a higher dps mean than the current
+                if (row.mean < result.mean) {
+                    _insertData();
+                }
+            }
+        });
+    } else {
+        _insertData();
+    }
 }
 
 function parseSimcReport(report, reportID) {
