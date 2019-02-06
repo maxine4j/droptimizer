@@ -76,7 +76,7 @@ async function runSim(charName) {
 
     // start a browser if we havent already
     if (!browser) {
-        browser = await puppeteer.launch({"headless": false}).catch(function() {
+        browser = await puppeteer.launch().catch(function() {
             console.error('Failed to start the puppeteer browser');
         });
     }
