@@ -9,12 +9,12 @@ const transporter = nodemailer.createTransport({
 
 console.log('Mailer set up with user:', process.env.GMAIL_USER);
 
-function error(err) {
+function sendMail(subject, body) {
     const opts = {
         from: process.env.GMAIL_USER,
         to: process.env.ERROR_EMAIL_TARGET,
-        subject: 'Bastion Droptimier: Error',
-        text: err
+        subject: `Bastion Droptimier: ${subject}`,
+        text: body
     };
 
     transporter.sendMail(opts, function(error, info){
@@ -24,9 +24,17 @@ function error(err) {
             console.log('Error email sent: ' + info.response);
         }
     });
-      
+}
+
+function error(err) {
+    sendMail('Error', err);
+}
+
+function log(s) {
+    sendMail('Info', s);
 }
 
 module.exports = {
-    'error': error
+    'error': error,
+    'log': log
 };

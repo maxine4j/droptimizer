@@ -293,7 +293,7 @@ async function firstStart() {
         browser = await puppeteer.launch({headless: browserHeadless});
     }, 5000);
 
-    mailer.error("Bastion Droptimizer firstStart() called.")
+    mailer.log("Bastion Droptimizer firstStart() called.")
 }
 
 function createCronJobs() {
