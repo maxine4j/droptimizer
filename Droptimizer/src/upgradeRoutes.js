@@ -14,7 +14,7 @@ router.get('/$', function(req, res, next) {
 });
 
 // gets an upgrade by id and character name
-router.get('/:region/:realm/:name/:itemID', function(req, res, next) {
+router.get('/:name/:itemID', function(req, res, next) {
     const sql = `SELECT * 
                 FROM upgrades 
                 JOIN characters ON upgrades.characterID = characters.id
