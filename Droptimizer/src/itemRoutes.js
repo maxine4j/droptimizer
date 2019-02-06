@@ -10,7 +10,7 @@ router.get('/:itemID', function(req, res, next) {
         if (err) {
             throw err;
         }
-        res.json(row)
+        res.json(row);
     });
 });
 
