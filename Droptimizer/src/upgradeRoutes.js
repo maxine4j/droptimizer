@@ -9,7 +9,7 @@ router.get('/$', function(req, res, next) {
         if (err) {
             throw err;
         }
-        res.json(rows)
+        res.json(rows);
     });
 });
 
@@ -26,7 +26,7 @@ router.get('/:region/:realm/:name/:itemID', function(req, res, next) {
         if (err) {
             throw err;
         }
-        res.json(rows)
+        res.json(rows);
     });
 })
 
