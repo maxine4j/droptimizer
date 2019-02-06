@@ -1,16 +1,16 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
 
-var characterRoutes = require('./src/characterRoutes');
-var upgradeRoutes = require('./src/upgradeRoutes');
-var itemRoutes = require('./src/itemRoutes');
-var dataUpadter = require('./src/dataUpdater');
+const characterRoutes = require('./src/characterRoutes');
+const upgradeRoutes = require('./src/upgradeRoutes');
+const itemRoutes = require('./src/itemRoutes');
+const dataUpadter = require('./src/dataUpdater');
 
-var app = express();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -31,18 +31,18 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.json({
-    error: {
-      code: err.status,
-      message: err.message,
-    }
-  });
+    // render the error page
+    res.status(err.status || 500);
+    res.json({
+        error: {
+        code: err.status,
+        message: err.message,
+        }
+    });
 });
 
 module.exports = app;

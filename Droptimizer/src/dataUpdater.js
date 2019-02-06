@@ -1,10 +1,10 @@
-var express = require('express');
-var data = require('./data');
-var request = require('request');
-var puppeteer = require('puppeteer');
-var CronJob = require('cron').CronJob;
-var router = express.Router();
-var blizzard  = require('blizzard.js').initialize({
+const express = require('express');
+const data = require('./data');
+const request = require('request');
+const puppeteer = require('puppeteer');
+const CronJob = require('cron').CronJob;
+const router = express.Router();
+const blizzard  = require('blizzard.js').initialize({
     key: process.env.WOW_API_CLIENTID,
     secret: process.env.WOW_API_CLIENTSECRET,
     origin: 'us',
@@ -18,107 +18,105 @@ blizzard.getApplicationToken({
     blizzardToken = response.data.access_token;
 }).catch(e => console.error(e));
 
-function updateCharacter(charName, charRealm, charRegion) {
-    blizzard.wow.character(['profile'], { origin: charRegion, realm: charRealm, name: charName, token: blizzardToken })
-        .then(response => {
-            let sql = 'SELECT id FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
-            data.db.get(sql, [charRegion, charRealm, charName], function(err, row) {
-                let sql = `INSERT OR REPLACE INTO characters(
-                    id,
-                    lastModified,
-                    name,
-                    realm,
-                    region,
-                    class,
-                    race,
-                    gender,
-                    level,
-                    thumbnail,
-                    faction,
-                    guild) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-                let params = [
-                    row ? row.id : null,
-                    response.data.lastModified,
-                    response.data.name,
-                    charRealm,
-                    charRegion,
-                    response.data.class,
-                    response.data.race,
-                    response.data.gender,
-                    response.data.level,
-                    response.data.thumbnail,
-                    response.data.faction,
-                    'Bastion',
-                ];
-                data.db.run(sql, params);
-            })
-        }).catch(e => console.error(`Error updating ${charName}-${charRealm}-${charRegion}`));
+const guildRealm = 'frostmourne';
+const guildRegion = 'us';
+const browser = null;
+
+// updates/adds a character in/to the database with new data from battle.net
+function updateCharacter(charName) {
+    blizzard.wow.character(['profile'], { 
+        origin: guildRegion, 
+        realm: guildRealm, 
+        name: charName, 
+        token: blizzardToken 
+    }).then(response => {
+        const sql = 'SELECT id FROM characters WHERE name=? COLLATE NOCASE;';
+        data.db.get(sql, [charRegion, charRealm, charName], function(err, row) {
+            const sql = `INSERT OR REPLACE INTO characters(
+                id,
+                lastModified,
+                name,
+                class,
+                thumbnail) VALUES(?, ?, ?, ?, ?);`;
+            let params = [
+                row ? row.id : null,
+                response.data.lastModified,
+                response.data.name,
+                response.data.class,
+                response.data.thumbnail,
+            ];
+            data.db.run(sql, params);
+        })
+    }).catch(e => console.error(`Error updating ${charName}`));
 }
 
+// updates every character in the database with new data from battle.net
 function updateAllCharacters() {
-    // get all chars
-    let sql = 'SELECT * FROM characters;';
+    const sql = 'SELECT name FROM characters;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
-            throw err;
+            console.error('Failed to "SELECT * FROM characters":', err);
         }
         for (var i = 0; i < rows.length; i++) {
-            console.log(`Updating data for ${rows[i].name}-${rows[i].realm}-${rows[i].region}`);
-            updateCharacter(rows[i].name, rows[i].realm, rows[i].region);
+            console.log(`Updating character: ${rows[i].name}`);
+            updateCharacter(rows[i].name);
         }
     });
 }
 
-async function runSim(charName, charRealm, charRegion) {
-    console.log(`Running sim for ${charName}-${charRealm}-${charRegion}`);
-    let uri = `https://www.raidbots.com/simbot/droptimizer?region=${charRegion}&realm=${charRealm}&name=${charName}`;
-    let cookies = [{
+// runs a raidbots sim for the given character
+async function runSim(charName) {
+    console.log(`Starting new sim: ${charName}`);
+    const uri = `https://www.raidbots.com/simbot/droptimizer?region=${guildRegion}&realm=${guildRealm}&name=${charName}`;
+    const cookies = [{
         name: 'raidsid',
         value: process.env.RAIDBOTS_COOKIE,
         domain: 'www.raidbots.com',
     }];
-    const browser = await puppeteer.launch().catch(function() {
-        // if the browser failed to start, then recall this sim in 1 minute
-        console.warn('Failed to start a new browser, will retry in 1 minute');
-        setTimeout(function() {
-            runSim(charName, charRealm, charRegion);
-        }, 60 * 1000);
-    });
-    if (browser !== undefined && browser !== null) {
-        const page = await browser.newPage();
-        await page.setCookie(...cookies);
-        await page.goto(uri);
-        setTimeout(async function() {
-            // select BoD
-            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
-            // select mythic
-            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
-            // set reorigination array stacks to 0
-            // open sim options
-            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)');
-            // click the array stacks drop down
-            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select');
-            // press down arrow to select 0 from dropdown
-            await page.keyboard.press('ArrowDown');
-            // press enter to confirm selection
-            await page.keyboard.press('Enter');
-            // start the sim, twice bc it doesnt work otherwise
-            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
-            await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
-            await page.waitForNavigation();
-            let reportID = page.url().split('/')[5];
-            await browser.close();
-            setTimeout(function() {
-                updateSimcReport(reportID);
-            },1000 * 60 * 10); // let raidbots have 10 mins to process the sim
-        }, 3000);
+
+    // start a browser if we havent already
+    if (!browser) {
+        browser = await puppeteer.launch().catch(function() {
+            console.error('Failed to start the puppeteer browser');
+        });
     }
+
+    // get a new page
+    const page = await browser.newPage().catch(function() {
+        console.error('Failed to open a new page');
+    });
+    await page.setCookie(...cookies);
+    await page.goto(uri);
+    setTimeout(async function() { // let raidbots have 3 secs to set up the page
+        // select BoD
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
+        // select mythic
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
+        // set reorigination array stacks to 0
+        // open sim options
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)');
+        // click the array stacks drop down
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select');
+        // press down arrow to select 0 from dropdown
+        await page.keyboard.press('ArrowDown');
+        // press enter to confirm selection
+        await page.keyboard.press('Enter');
+        // start the sim, twice bc it doesnt work otherwise
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
+        await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
+        await page.waitForNavigation();
+        const reportID = page.url().split('/')[5];
+        await page.close();
+        setTimeout(function() { // let raidbots have 10 mins to process the sim
+            updateSimcReport(reportID);
+        },1000 * 60 * 10); 
+    }, 1000 * 3);
 }
 
 function runAllCharSims() {
+    const delayGap = 60 * 1000 * 5; // 5 min delay between starting sims
     let lastDelay = 0;
-    let delayGap = 60 * 1000 * 5; // 5 min delay between starting sims
-    let sql = 'SELECT * FROM characters;';
+    const sql = 'SELECT * FROM characters;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
             throw err;
@@ -130,53 +128,37 @@ function runAllCharSims() {
             lastDelay += delayGap;
         }
     });
-
 }
+
 function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
     function _insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
-        let nameParts = result.name.split('\/')
-        let itemID = nameParts[2];
-
-        let sql = `INSERT OR REPLACE INTO upgrades(
+        const nameParts = result.name.split('\/')
+        const itemID = nameParts[2];
+        const sql = `INSERT OR REPLACE INTO upgrades(
             characterID,
             itemID,
-            name,
-            mean,
-            min,
-            max,
-            stddev,
-            median,
-            first_quartile,
-            third_quartile,
-            base_dps_mean,
-            iterations,
             reportID,
+            dps,
+            baseDps,
             spec,
-            timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-
-        let params = [
+            timeStamp) VALUES(?, ?, ?, ?, ?, ?, ?);`;
+        const params = [
             charID,
             itemID,
-            result.name,
-            result.mean,
-            result.min,
-            result.max,
-            result.stddev,
-            result.median,
-            result.first_quartile,
-            result.third_quartile,
-            baseDps.mean,
-            result.iterations,
             reportID,
+            result.mean,
+            baseDps.mean,
             spec,
             timeStamp
         ];
-
         // check if this item is an azerite piece
-        // if it is we can have multiple sims with the same item id
-        if (nameParts.length === 6) {
+        // if it is we can have multiple results with the same item id
+        if (nameParts.length === 6) { // azerite items have an extra part for their trait config
             data.db.get('SELECT * FROM upgrades WHERE characterID=? AND itemID=?;', [charID, itemID], function(err, row) {
-                if (row !== null && row !== undefined) {
+                if (err) {
+                    throw err;
+                }
+                if (row) {
                     // only insert the new data if it has a higher dps mean than the current
                     if (row.mean < result.mean) {
                         data.db.run(sql, params);
@@ -189,61 +171,60 @@ function insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp) {
             data.db.run(sql, params);
         }
     }
+    // bodge to ensure highest azerite dps is always used
     _insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp);
     _insertUpgrade(charID, result, baseDps, reportID, spec, timeStamp);
 }
 
-function parseSimcReport(report, reportID) {
-    let charName = report.simbot.meta.rawFormData.character.name;
-    let charRealm = report.simbot.meta.rawFormData.character.realm;
-    let charRegion = 'us';
-    console.log(`Parsing report for ${charName}-${charRealm}-${charRegion}`);
-    updateCharacter(charName, charRealm, charRegion);
-
-    // get the character id
-    let sql = 'SELECT * FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
-    data.db.get(sql, [charRegion, charRealm, charName], (err, row) => {
-        if (err || !row) {
-            throw err;
-        }
-        for (var i = 0; i < report.sim.profilesets.results.length; i++) {
-            insertUpgrade(row.id, report.sim.profilesets.results[i], report.sim.players[0].collected_data.dps, reportID, report.sim.players[0].specialization, report.simbot.date);
-        }
-    });
-}
-
-function fetchSimcReport(reportID, callback) {
+function updateSimcReport(reportID) {
+    // TODO: check if the report is a droptimier sim
     console.log(`Fetching raidbots report ${reportID}`);
     let uri = `https://www.raidbots.com/reports/${reportID}/data.json`;
     request.get(uri, function(error, response, body) {
         if (response && response.statusCode === 200) {
-            bodyObj = JSON.parse(body);
-            callback(bodyObj);
+            let report = JSON.parse(body);
+            let charName = report.simbot.meta.rawFormData.character.name;
+            console.log(`Parsing report: ${charName}`);
+            // ensure the character is up to date
+            updateCharacter(charName);
+            // get the character id
+            let sql = 'SELECT * FROM characters WHERE name=? COLLATE NOCASE;';
+            data.db.get(sql, [charName], (err, row) => {
+                if (err) {
+                    throw err;
+                }
+                for (var i = 0; i < report.sim.profilesets.results.length; i++) {
+                    insertUpgrade(row.id, 
+                        report.sim.profilesets.results[i], 
+                        report.sim.players[0].collected_data.dps, 
+                        reportID, 
+                        report.sim.players[0].specialization, 
+                        report.simbot.date);
+                }
+            });
         } else {
             console.error(error);
         }
     });
 }
 
-function updateSimcReport(reportID) {
-    fetchSimcReport(reportID, report => parseSimcReport(report, reportID));
-}
-
+// deletes upgrades that are over 2 days old
 function pruneStaleUpgrades() {
-    let sql = 'DELETE FROM upgrades WHERE timeStamp <= date("now","-1 day");';
-    data.db.run(sql);
+    // FIXME: one is in ms the other in us
+    data.db.run('DELETE FROM upgrades WHERE timeStamp <= date("now","-2 day");');
 }
 
+// updates item database with data from raidbots
 function updateItems() {
-    let uri = 'https://www.raidbots.com/static/data/live/equippable-items.json';
+    const uri = 'https://www.raidbots.com/static/data/live/equippable-items.json';
     request.get(uri, function(error, response, body) {
         if (response && response.statusCode === 200) {
             console.log('Got item data from raidbots');
-            items = JSON.parse(body);
+            const items = JSON.parse(body);
             data.db.run("BEGIN TRANSACTION;");
             for (let i = 0; i < items.length; i++) {
-                let sql = 'INSERT OR REPLACE INTO items(id, name, icon, quality, itemLevel) VALUES (?, ?, ?, ?, ?);'
-                let params = [items[i].id, items[i].name, items[i].icon, items[i].quality, items[i].itemLevel];
+                const sql = 'INSERT OR REPLACE INTO items(id, name, icon, quality, itemLevel) VALUES (?, ?, ?, ?, ?);'
+                const params = [items[i].id, items[i].name, items[i].icon, items[i].quality, items[i].itemLevel];
                 data.db.run(sql, params);
             }
             data.db.run("COMMIT TRANSACTION;");
@@ -254,50 +235,45 @@ function updateItems() {
     });
 }
 
-function removeCharacter(charName, charRealm, charRegion) {
-    let sql = 'SELECT id FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
-    data.db.get(sql, [charRegion, charRealm, charName], (err, row) => {
-        if (err || !row) {
-            throw err;
-        }
-        data.db.run('DELETE FROM upgrades WHERE characterID = ?;', [row.id]);
-        data.db.run('DELETE FROM characters WHERE id = ?;', [row.id]);
-    });
-
+// deletes a character from the database
+function removeCharacter(charName) {
+    data.db.run('DELETE FROM characters WHERE name=? COLLATE NOCASE;', [charName]);
 }
 
 function firstStart() {
+    // start cron jobs
+    createCronJobs();
+
     // run everything once on first start
-    setTimeout(function() {
-        updateCharacter('arwic', 'frostmourne', 'us'); 
-        updateCharacter('bowbi', 'frostmourne', 'us'); 
-        updateCharacter('monkaxd', 'frostmourne', 'us'); 
-        updateCharacter('subjugates', 'frostmourne', 'us'); 
-        updateCharacter('kharahh', 'frostmourne', 'us'); 
-        updateCharacter('datspank', 'frostmourne', 'us'); 
-        updateCharacter('astios', 'frostmourne', 'us'); 
-        updateCharacter('solarhands', 'frostmourne', 'us'); 
-        updateCharacter('gayke', 'frostmourne', 'us'); 
-        updateCharacter('sadwoofer', 'frostmourne', 'us'); 
-        updateCharacter('cleavergreen', 'frostmourne', 'us'); 
-        updateCharacter('bwobets', 'frostmourne', 'us'); 
-        updateCharacter('dasit', 'frostmourne', 'us'); 
-        updateCharacter('vietmonks', 'frostmourne', 'us'); 
-        updateCharacter('Nivektis', 'frostmourne', 'us'); 
-        updateCharacter('ptolemy', 'frostmourne', 'us'); 
-        updateCharacter('stollas', 'frostmourne', 'us'); 
-        updateCharacter('lightzlightt', 'frostmourne', 'us'); 
-        updateCharacter('agreatname', 'frostmourne', 'us'); 
-        updateCharacter('kitteriel', 'frostmourne', 'us'); 
-        updateCharacter('procreated', 'frostmourne', 'us'); 
-        updateCharacter('bbltransfmnz', 'frostmourne', 'us'); 
-        updateCharacter('zezek', 'frostmourne', 'us'); 
-        updateCharacter('brbteabreaks', 'frostmourne', 'us'); 
-        updateCharacter('peroxíde', 'frostmourne', 'us'); 
-        updateCharacter('meggers', 'frostmourne', 'us'); 
-        updateCharacter('fitme', 'frostmourne', 'us'); 
-        updateCharacter('solarburst', 'frostmourne', 'us'); 
-        updateCharacter('tarana', 'frostmourne', 'us'); 
+    setTimeout(function() { // wait 5 secs for battle.net api token
+        updateCharacter('arwic'); 
+        updateCharacter('bowbi'); 
+        updateCharacter('monkaxd'); 
+        updateCharacter('subjugates'); 
+        updateCharacter('kharahh'); 
+        updateCharacter('datspank'); 
+        updateCharacter('astios'); 
+        updateCharacter('solarhands'); 
+        updateCharacter('gayke'); 
+        updateCharacter('sadwoofer'); 
+        updateCharacter('cleavergreen'); 
+        updateCharacter('bwobets'); 
+        updateCharacter('dasit'); 
+        updateCharacter('vietmonks'); 
+        updateCharacter('Nivektis'); 
+        updateCharacter('ptolemy'); 
+        updateCharacter('stollas'); 
+        updateCharacter('agreatname'); 
+        updateCharacter('kitteriel'); 
+        updateCharacter('procreated'); 
+        updateCharacter('bbltransfmnz'); 
+        updateCharacter('zezek'); 
+        updateCharacter('brbteabreaks'); 
+        updateCharacter('peroxíde'); 
+        updateCharacter('solarburst'); 
+        updateCharacter('tarana'); 
+        updateCharacter('Frodolol'); 
+        updateCharacter('Cpc'); 
 
         updateItems();
         //runAllCharSims();
@@ -305,15 +281,15 @@ function firstStart() {
 }
 
 function createCronJobs() {
-    // update all characters every hour
-    let cron_characterUpdate = new CronJob('* 1 * * *', function() {
+    // update all characters every hour with new data from battle.net
+    const cron_characterUpdate = new CronJob('* 1 * * *', function() {
         console.log("CRON: Updating Characters");
         updateAllCharacters();
     });
     cron_characterUpdate.start();
 
     // start new droptimizer sims at 3:00am every day
-    let cron_startSims = new CronJob('0 3 * * *', function() {
+    const cron_startSims = new CronJob('0 3 * * *', function() {
         console.log("CRON: Pruning stale upgrades");
         pruneStaleUpgrades();
         console.log("CRON: Running character sims");
@@ -322,7 +298,7 @@ function createCronJobs() {
     cron_startSims.start();
 
     // update items at 3:00am every day
-    let cron_updateItems = new CronJob('0 3 * * *', function() {
+    const cron_updateItems = new CronJob('0 3 * * *', function() {
         console.log("CRON: Updating items");
         updateItems();
     });
@@ -330,16 +306,17 @@ function createCronJobs() {
 }
 
 firstStart();
-createCronJobs();
+
+// express routes
 
 router.get('/report/:reportID', function(req, res, next) {
     updateSimcReport(req.params.reportID);
     res.json(`Parsing report with id ${req.params.reportID}`);
 });
 
-router.get('/sim/:charRegion/:charRealm/:charName', function(req, res, next) {
-    runSim(req.params.charName, req.params.charRealm, req.params.charRegion);
-    res.json(`Sim Started for ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion}. New upgrades should be ready in 10 minutes.`);
+router.get('/sim/:charName', function(req, res, next) {
+    runSim(req.params.charName);
+    res.json(`Sim Started for ${req.params.charName}. New upgrades should be ready in 10 minutes.`);
 });
 
 router.get('/all/sim$', function(req, res, next) {
@@ -347,16 +324,15 @@ router.get('/all/sim$', function(req, res, next) {
     res.json(`Sim started for all characters. This could take a while.`);
 });
 
-router.get('/character/:charRegion/:charRealm/:charName', function(req, res, next) {
-    updateCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
-    res.json(`Character ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion} has been updated.`);
+router.get('/character/:charName', function(req, res, next) {
+    updateCharacter(req.params.charName);
+    res.json(`Character ${req.params.charName} has been updated.`);
 });
 
-router.get('/remove/character/:charRegion/:charRealm/:charName', function(req, res, next) {
-    removeCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
-    res.json(`Character ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion} has been removed.`);
+router.get('/remove/character/:charName', function(req, res, next) {
+    removeCharacter(req.params.charName);
+    res.json(`Character ${req.params.charName} has been removed.`);
 });
-
 
 router.get('/all/character$', function(req, res, next) {
     updateAllCharacters();

@@ -1,10 +1,10 @@
-var express = require('express');
-var router = express.Router();
-var data = require('./data');
+const express = require('express');
+const router = express.Router();
+const data = require('./data');
 
 // get all upgrades
 router.get('/$', function(req, res, next) {
-    let sql = 'SELECT * FROM upgrades;';
+    const sql = 'SELECT * FROM upgrades;';
     data.db.all(sql, [], (err, rows) => {
         if (err) {
             throw err;
@@ -15,7 +15,7 @@ router.get('/$', function(req, res, next) {
 
 // gets an upgrade by id and character name
 router.get('/:region/:realm/:name/:itemID', function(req, res, next) {
-    let sql = `SELECT * 
+    const sql = `SELECT * 
                 FROM upgrades 
                 JOIN characters ON upgrades.characterID = characters.id
                 WHERE characters.region=? COLLATE NOCASE 
