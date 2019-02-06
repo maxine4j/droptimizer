@@ -20,7 +20,7 @@ blizzard.getApplicationToken({
 
 const guildRealm = 'frostmourne';
 const guildRegion = 'us';
-const browser = puppeteer.launch();
+let browser = null; (async function() { browser = await puppeteer.launch(); })();
 
 // updates/adds a character in/to the database with new data from battle.net
 function updateCharacter(charName) {
