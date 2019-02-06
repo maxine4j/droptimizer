@@ -23,8 +23,6 @@ blizzard.getApplicationToken({
 });
 const guildRealm = 'frostmourne';
 const guildRegion = 'us';
-let browser = null;
-const browserHeadless = true;
 
 // updates/adds a character in/to the database with new data from battle.net
 function updateCharacter(charName) {
@@ -84,6 +82,10 @@ async function runSim(charName) {
     }];
 
     // get a new page
+    const browser = await puppeteer.launch().catch(function(e) {
+        console.error('Failed to start a new browser');
+        mailer.error(e);
+    });
     if (browser) {
         const page = await browser.newPage().catch(function(e) {
             console.error('Failed to open a new page');
@@ -112,6 +114,7 @@ async function runSim(charName) {
                 await page.waitForNavigation().catch((e) => { console.error(e); mailer.error(e); });
                 const reportID = page.url().split('/')[5];
                 await page.close().catch((e) => { console.error(e); mailer.error(e); });
+                await browser.close().catch((e) => { console.error(e); mailer.error(e); });
                 setTimeout(function() { // let raidbots have 10 mins to process the sim
                     updateSimcReport(reportID);
                 },1000 * 60 * 10); 
@@ -291,11 +294,7 @@ async function firstStart() {
         //runAllSims();
     }, 5000);
 
-    setTimeout(async function() {
-        browser = await puppeteer.launch({headless: browserHeadless});
-    }, 5000);
-
-    mailer.log("Bastion Droptimizer firstStart() called.")
+    mailer.log("Bastion Droptimizer server has started")
 }
 
 function createCronJobs() {
