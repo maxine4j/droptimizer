@@ -229,6 +229,11 @@ function updateSimcReport(reportID) {
     fetchSimcReport(reportID, report => parseSimcReport(report, reportID));
 }
 
+function pruneStaleUpgrades() {
+    let sql = 'DELETE FROM upgrades WHERE timeStamp <= date("now","-1 day");';
+    data.db.run(sql);
+}
+
 function updateItems() {
     let uri = 'https://www.raidbots.com/static/data/live/equippable-items.json';
     request.get(uri, function(error, response, body) {
@@ -265,7 +270,6 @@ function firstStart() {
         updateCharacter('cleavergreen', 'frostmourne', 'us'); 
         updateCharacter('bwobets', 'frostmourne', 'us'); 
         updateCharacter('dasit', 'frostmourne', 'us'); 
-        updateCharacter('sslay', 'frostmourne', 'us'); 
         updateCharacter('vietmonks', 'frostmourne', 'us'); 
         updateCharacter('Nivektis', 'frostmourne', 'us'); 
         updateCharacter('ptolemy', 'frostmourne', 'us'); 
@@ -298,6 +302,8 @@ function createCronJobs() {
 
     // start new droptimizer sims at 3:00am every day
     let cron_startSims = new CronJob('0 3 * * *', function() {
+        console.log("CRON: Pruning stale upgrades");
+        pruneStaleUpgrades();
         console.log("CRON: Running character sims");
         runAllCharSims();
     });
@@ -337,6 +343,11 @@ router.get('/character/:charRegion/:charRealm/:charName', function(req, res, nex
 router.get('/all/character$', function(req, res, next) {
     updateAllCharacters();
     res.json(`All characters have been updated.`);
+});
+
+router.get('/prune$', function(req, res, next) {
+    pruneStaleUpgrades();
+    res.json(`Pruned stale upgrade data.`);
 });
 
 module.exports = router;
