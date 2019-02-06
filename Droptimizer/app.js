@@ -9,6 +9,7 @@ const characterRoutes = require('./src/characterRoutes');
 const upgradeRoutes = require('./src/upgradeRoutes');
 const itemRoutes = require('./src/itemRoutes');
 const dataUpadter = require('./src/dataUpdater');
+const mailer = require('./src/mailer');
 
 const app = express();
 
@@ -43,6 +44,12 @@ app.use(function(err, req, res, next) {
         message: err.message,
         }
     });
+});
+
+process.on('uncaughtException', function(err) {
+    console.log('Uncaught exception: ' + err);
+    mailer.error(err);
+    process.exit(1);
 });
 
 module.exports = app;

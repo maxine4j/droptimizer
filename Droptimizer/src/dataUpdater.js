@@ -4,6 +4,7 @@ const request = require('request');
 const puppeteer = require('puppeteer');
 const CronJob = require('cron').CronJob;
 const router = express.Router();
+const mailer = require('./mailer');
 const blizzard  = require('blizzard.js').initialize({
     key: process.env.WOW_API_CLIENTID,
     secret: process.env.WOW_API_CLIENTSECRET,
@@ -16,11 +17,14 @@ blizzard.getApplicationToken({
     origin: 'us'
 }).then(response => {
     blizzardToken = response.data.access_token;
-}).catch(e => console.error(e));
-
+}).catch(e => {
+    console.error(e)
+    mailer.error(e);
+});
 const guildRealm = 'frostmourne';
 const guildRegion = 'us';
 let browser = null;
+const browserHeadless = false;
 
 // updates/adds a character in/to the database with new data from battle.net
 function updateCharacter(charName) {
@@ -47,7 +51,10 @@ function updateCharacter(charName) {
             ];
             data.db.run(sql, params);
         })
-    }).catch(e => console.error(`Error updating ${charName}`, e));
+    }).catch(e => { 
+        console.error(`Error updating ${charName}`, e);
+        mailer.error(e);
+    });
 }
 
 // updates every character in the database with new data from battle.net
@@ -56,6 +63,7 @@ function updateAllCharacters() {
     data.db.all(sql, [], (err, rows) => {
         if (err) {
             console.error('Failed to "SELECT * FROM characters":', err);
+            mailer.error(err);
         }
         for (var i = 0; i < rows.length; i++) {
             console.log(`Updating character: ${rows[i].name}`);
@@ -76,32 +84,33 @@ async function runSim(charName) {
 
     // get a new page
     if (browser) {
-        const page = await browser.newPage().catch(function() {
+        const page = await browser.newPage().catch(function(e) {
             console.error('Failed to open a new page');
+            mailer.error(e);
         });
         if (page) {
-            await page.setCookie(...cookies);
-            await page.goto(uri);
+            await page.setCookie(...cookies).catch((e) => { console.error(e); mailer.error(e); });
+            await page.goto(uri).catch((e) => { console.error(e); mailer.error(e); });
             setTimeout(async function() { // let raidbots have 3 secs to set up the page
                 // select BoD
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)');
+                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)').catch((e) => { console.error(e); mailer.error(e); });
                 // select mythic
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p');
+                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p').catch((e) => { console.error(e); mailer.error(e); });
                 // set reorigination array stacks to 0
                 // open sim options
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)');
+                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)').catch((e) => { console.error(e); mailer.error(e); });
                 // click the array stacks drop down
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select');
+                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select').catch((e) => { console.error(e); mailer.error(e); });
                 // press down arrow to select 0 from dropdown
-                await page.keyboard.press('ArrowDown');
+                await page.keyboard.press('ArrowDown').catch((e) => { console.error(e); mailer.error(e); });
                 // press enter to confirm selection
-                await page.keyboard.press('Enter');
+                await page.keyboard.press('Enter').catch((e) => { console.error(e); mailer.error(e); });
                 // start the sim, twice bc it doesnt work otherwise
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button');
-                await page.waitForNavigation();
+                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button').catch((e) => { console.error(e); mailer.error(e); });
+                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button').catch((e) => { console.error(e); mailer.error(e); });
+                await page.waitForNavigation().catch((e) => { console.error(e); mailer.error(e); });
                 const reportID = page.url().split('/')[5];
-                await page.close();
+                await page.close().catch((e) => { console.error(e); mailer.error(e); });
                 setTimeout(function() { // let raidbots have 10 mins to process the sim
                     updateSimcReport(reportID);
                 },1000 * 60 * 10); 
@@ -203,6 +212,7 @@ function updateSimcReport(reportID) {
             });
         } else {
             console.error(error);
+            mailer.error(error);
         }
     });
 }
@@ -230,6 +240,7 @@ function updateItems() {
             console.log(`${items.length} items updated`);
         } else {
             console.error(error);
+            mailer.error(error);
         }
     });
 }
@@ -279,7 +290,7 @@ async function firstStart() {
     }, 5000);
 
     setTimeout(async function() {
-        browser = await puppeteer.launch();
+        browser = await puppeteer.launch({headless: browserHeadless});
     }, 5000);
 }
 
