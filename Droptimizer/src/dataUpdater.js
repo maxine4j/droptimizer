@@ -24,7 +24,7 @@ blizzard.getApplicationToken({
 const guildRealm = 'frostmourne';
 const guildRegion = 'us';
 let browser = null;
-const browserHeadless = false;
+const browserHeadless = true;
 
 // updates/adds a character in/to the database with new data from battle.net
 function updateCharacter(charName) {
@@ -292,6 +292,8 @@ async function firstStart() {
     setTimeout(async function() {
         browser = await puppeteer.launch({headless: browserHeadless});
     }, 5000);
+
+    mailer.error("Bastion Droptimizer firstStart() called.")
 }
 
 function createCronJobs() {
