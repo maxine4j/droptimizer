@@ -20,7 +20,7 @@ blizzard.getApplicationToken({
 
 const guildRealm = 'frostmourne';
 const guildRegion = 'us';
-const browser = null;
+var browser = null;
 
 // updates/adds a character in/to the database with new data from battle.net
 function updateCharacter(charName) {
@@ -31,7 +31,7 @@ function updateCharacter(charName) {
         token: blizzardToken 
     }).then(response => {
         const sql = 'SELECT id FROM characters WHERE name=? COLLATE NOCASE;';
-        data.db.get(sql, [charRegion, charRealm, charName], function(err, row) {
+        data.db.get(sql, [charName], function(err, row) {
             const sql = `INSERT OR REPLACE INTO characters(
                 id,
                 lastModified,
@@ -47,7 +47,7 @@ function updateCharacter(charName) {
             ];
             data.db.run(sql, params);
         })
-    }).catch(e => console.error(`Error updating ${charName}`));
+    }).catch(e => console.error(`Error updating ${charName}`, e));
 }
 
 // updates every character in the database with new data from battle.net
@@ -76,7 +76,7 @@ async function runSim(charName) {
 
     // start a browser if we havent already
     if (!browser) {
-        browser = await puppeteer.launch().catch(function() {
+        browser = await puppeteer.launch({"headless": false}).catch(function() {
             console.error('Failed to start the puppeteer browser');
         });
     }
@@ -113,7 +113,7 @@ async function runSim(charName) {
     }, 1000 * 3);
 }
 
-function runAllCharSims() {
+function runAllSims() {
     const delayGap = 60 * 1000 * 5; // 5 min delay between starting sims
     let lastDelay = 0;
     const sql = 'SELECT * FROM characters;';
@@ -184,6 +184,8 @@ function updateSimcReport(reportID) {
         if (response && response.statusCode === 200) {
             let report = JSON.parse(body);
             let charName = report.simbot.meta.rawFormData.character.name;
+            // delete all current upgrades for this report's character
+            data.db.run('DELETE FROM upgrades WHERE characterID = (SELECT id FROM characters WHERE name = ?);', [charName]);
             console.log(`Parsing report: ${charName}`);
             // ensure the character is up to date
             updateCharacter(charName);
@@ -276,7 +278,7 @@ function firstStart() {
         updateCharacter('Cpc'); 
 
         updateItems();
-        //runAllCharSims();
+        //runAllSims();
     }, 5000);
 }
 
@@ -293,7 +295,7 @@ function createCronJobs() {
         console.log("CRON: Pruning stale upgrades");
         pruneStaleUpgrades();
         console.log("CRON: Running character sims");
-        runAllCharSims();
+        runAllSims();
     });
     cron_startSims.start();
 
@@ -308,7 +310,6 @@ function createCronJobs() {
 firstStart();
 
 // express routes
-
 router.get('/report/:reportID', function(req, res, next) {
     updateSimcReport(req.params.reportID);
     res.json(`Parsing report with id ${req.params.reportID}`);
@@ -320,7 +321,7 @@ router.get('/sim/:charName', function(req, res, next) {
 });
 
 router.get('/all/sim$', function(req, res, next) {
-    runAllCharSims();
+    runAllSims();
     res.json(`Sim started for all characters. This could take a while.`);
 });
 
