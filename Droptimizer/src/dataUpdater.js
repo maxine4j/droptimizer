@@ -254,6 +254,18 @@ function updateItems() {
     });
 }
 
+function removeCharacter(charName, charRealm, charRegion) {
+    let sql = 'SELECT id FROM characters WHERE region=? COLLATE NOCASE AND realm=? COLLATE NOCASE AND name=? COLLATE NOCASE;';
+    data.db.get(sql, [charRegion, charRealm, charName], (err, row) => {
+        if (err || !row) {
+            throw err;
+        }
+        data.db.run('DELETE FROM upgrades WHERE characterID = ?;', [row.id]);
+        data.db.run('DELETE FROM characters WHERE id = ?;', [row.id]);
+    });
+
+}
+
 function firstStart() {
     // run everything once on first start
     setTimeout(function() {
@@ -339,6 +351,12 @@ router.get('/character/:charRegion/:charRealm/:charName', function(req, res, nex
     updateCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
     res.json(`Character ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion} has been updated.`);
 });
+
+router.get('/remove/character/:charRegion/:charRealm/:charName', function(req, res, next) {
+    removeCharacter(req.params.charName, req.params.charRealm, req.params.charRegion);
+    res.json(`Character ${req.params.charName}-${req.params.charRealm}-${req.params.charRegion} has been removed.`);
+});
+
 
 router.get('/all/character$', function(req, res, next) {
     updateAllCharacters();
