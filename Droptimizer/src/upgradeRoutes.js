@@ -18,9 +18,7 @@ router.get('/:name/:itemID', function(req, res, next) {
     const sql = `SELECT * 
                 FROM upgrades 
                 JOIN characters ON upgrades.characterID = characters.id
-                WHERE characters.region=? COLLATE NOCASE 
-                AND characters.realm=? COLLATE NOCASE
-                AND characters.name=? COLLATE NOCASE
+                WHERE characters.name=? COLLATE NOCASE
                 AND upgrades.itemID=?;`;
     data.db.get(sql, [req.params.name, req.params.itemID], (err, rows) => {
         if (err) {
