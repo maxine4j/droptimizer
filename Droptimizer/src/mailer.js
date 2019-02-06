@@ -21,7 +21,7 @@ function sendMail(subject, body) {
         if (error) {
             console.error(error);
         } else {
-            console.log('Error email sent: ' + info.response);
+            console.log('Email sent: ' + info.response);
         }
     });
 }
