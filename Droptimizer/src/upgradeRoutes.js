@@ -22,7 +22,7 @@ router.get('/:name/:itemID', function(req, res, next) {
                 AND characters.realm=? COLLATE NOCASE
                 AND characters.name=? COLLATE NOCASE
                 AND upgrades.itemID=?;`;
-    data.db.get(sql, [req.params.region, req.params.realm, req.params.name, req.params.itemID], (err, rows) => {
+    data.db.get(sql, [req.params.name, req.params.itemID], (err, rows) => {
         if (err) {
             throw err;
         }
