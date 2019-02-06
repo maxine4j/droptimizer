@@ -292,8 +292,6 @@ function createCronJobs() {
 
     // start new droptimizer sims at 3:00am every day
     const cron_startSims = new CronJob('0 3 * * *', function() {
-        console.log("CRON: Pruning stale upgrades");
-        pruneStaleUpgrades();
         console.log("CRON: Running character sims");
         runAllSims();
     });
