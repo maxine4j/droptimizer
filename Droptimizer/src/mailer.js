@@ -7,6 +7,8 @@ const transporter = nodemailer.createTransport({
     }
 })
 
+console.log('Mailer set up with user:', process.env.GMAIL_USER);
+
 function error(err) {
     const opts = {
         from: process.env.GMAIL_USER,
