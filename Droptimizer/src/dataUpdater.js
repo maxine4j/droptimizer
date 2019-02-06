@@ -74,6 +74,7 @@ function updateAllCharacters() {
 
 // runs a raidbots sim for the given character
 async function runSim(charName) {
+    mailer.log(`Starting new sim for character ${charName}`);
     console.log(`Starting new sim: ${charName}`);
     const uri = `https://www.raidbots.com/simbot/droptimizer?region=${guildRegion}&realm=${guildRealm}&name=${charName}`;
     const cookies = [{
@@ -120,6 +121,7 @@ async function runSim(charName) {
 }
 
 function runAllSims() {
+    mailer.log('Starting new simulations for all characters');
     const delayGap = 60 * 1000 * 5; // 5 min delay between starting sims
     let lastDelay = 0;
     const sql = 'SELECT * FROM characters;';
@@ -299,21 +301,24 @@ async function firstStart() {
 function createCronJobs() {
     // update all characters every hour with new data from battle.net
     const cron_characterUpdate = new CronJob('* 1 * * *', function() {
-        console.log("CRON: Updating Characters");
+        console.log('CRON: Updating Characters');
+        mailer.log('CRON: Updating Characters');
         updateAllCharacters();
     });
     cron_characterUpdate.start();
 
     // start new droptimizer sims at 3:00am every day
     const cron_startSims = new CronJob('0 3 * * *', function() {
-        console.log("CRON: Running character sims");
+        console.log('CRON: Running character sims');
+        mailer.log('CRON: Running character sims');
         runAllSims();
     });
     cron_startSims.start();
 
     // update items at 3:00am every day
     const cron_updateItems = new CronJob('0 3 * * *', function() {
-        console.log("CRON: Updating items");
+        console.log('CRON: Updating items');
+        mailer.log('CRON: Updating items');
         updateItems();
     });
     cron_updateItems.start();
