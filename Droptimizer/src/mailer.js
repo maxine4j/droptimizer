@@ -27,7 +27,7 @@ function sendMail(subject, body) {
 }
 
 function error(err) {
-    sendMail('Error', err);
+    sendMail('Error', err.stack);
 }
 
 function log(s) {
