@@ -299,25 +299,25 @@ async function firstStart() {
 
 function createCronJobs() {
     // update all characters every hour with new data from battle.net
-    const cron_characterUpdate = cron.schedule('0 * * * *', function() {
+    cron.schedule('0 * * * *', function() {
         console.log('CRON: Updating Characters');
         mailer.log('CRON: Updating Characters');
         updateAllCharacters();
-    }, { timezone: 'Australia/Perth' });
+    }, { timezone: 'Australia/Sydney' });
 
-    // start new droptimizer sims at 3:00am every day
-    const cron_startSims = cron.schedule('10 10 * * *', function() {
+    // start new droptimizer sims at 5:00am every day
+    cron.schedule('0 5 * * *', function() {
         console.log('CRON: Running character sims');
         mailer.log('CRON: Running character sims');
         runAllSims();
-    }, { timezone: 'Australia/Perth' });
+    }, { timezone: 'Australia/Sydney' });
 
-    // update items at 3:00am every day
-    const cron_updateItems = cron.schedule('10 10 * * *', function() {
+    // update items at 4:00am every day
+    cron.schedule('0 4 * * *', function() {
         console.log('CRON: Updating items');
         mailer.log('CRON: Updating items');
         updateItems();
-    }, { timezone: 'Australia/Perth' });
+    }, { timezone: 'Australia/Sydney' });
 }
 
 firstStart();
