@@ -303,21 +303,21 @@ function createCronJobs() {
         console.log('CRON: Updating Characters');
         mailer.log('CRON: Updating Characters');
         updateAllCharacters();
-    });
+    }, { timezone: 'Australia/Perth' });
 
     // start new droptimizer sims at 3:00am every day
-    const cron_startSims = cron.schedule('0 10 * * *', function() {
+    const cron_startSims = cron.schedule('10 10 * * *', function() {
         console.log('CRON: Running character sims');
         mailer.log('CRON: Running character sims');
         runAllSims();
-    });
+    }, { timezone: 'Australia/Perth' });
 
     // update items at 3:00am every day
-    const cron_updateItems = cron.schedule('0 10 * * *', function() {
+    const cron_updateItems = cron.schedule('10 10 * * *', function() {
         console.log('CRON: Updating items');
         mailer.log('CRON: Updating items');
         updateItems();
-    });
+    }, { timezone: 'Australia/Perth' });
 }
 
 firstStart();
