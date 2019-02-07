@@ -2,7 +2,7 @@ const express = require('express');
 const data = require('./data');
 const request = require('request');
 const puppeteer = require('puppeteer');
-const CronJob = require('cron').CronJob;
+const cron = require('node-cron');
 const router = express.Router();
 const mailer = require('./mailer');
 const blizzard  = require('blizzard.js').initialize({
@@ -299,28 +299,25 @@ async function firstStart() {
 
 function createCronJobs() {
     // update all characters every hour with new data from battle.net
-    const cron_characterUpdate = new CronJob('* 1 * * *', function() {
+    const cron_characterUpdate = cron.schedule('0 * * * *', function() {
         console.log('CRON: Updating Characters');
         mailer.log('CRON: Updating Characters');
         updateAllCharacters();
     });
-    cron_characterUpdate.start();
 
     // start new droptimizer sims at 3:00am every day
-    const cron_startSims = new CronJob('0 3 * * *', function() {
+    const cron_startSims = cron.schedule('0 10 * * *', function() {
         console.log('CRON: Running character sims');
         mailer.log('CRON: Running character sims');
         runAllSims();
     });
-    cron_startSims.start();
 
     // update items at 3:00am every day
-    const cron_updateItems = new CronJob('0 3 * * *', function() {
+    const cron_updateItems = cron.schedule('0 10 * * *', function() {
         console.log('CRON: Updating items');
         mailer.log('CRON: Updating items');
         updateItems();
     });
-    cron_updateItems.start();
 }
 
 firstStart();
