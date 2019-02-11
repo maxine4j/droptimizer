@@ -301,7 +301,6 @@ function createCronJobs() {
     // update all characters every hour with new data from battle.net
     cron.schedule('0 * * * *', function() {
         console.log('CRON: Updating Characters');
-        mailer.log('CRON: Updating Characters');
         updateAllCharacters();
     }, { timezone: 'Australia/Sydney' });
 
