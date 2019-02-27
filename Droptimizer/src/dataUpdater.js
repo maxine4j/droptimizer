@@ -291,7 +291,7 @@ async function firstStart() {
         updateCharacter('Frodolol'); 
         updateCharacter('Cpc'); 
 
-        updateItems();
+        //updateItems();
         //runAllSims();
     }, 5000);
 
