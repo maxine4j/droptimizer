@@ -5,6 +5,7 @@ const puppeteer = require('puppeteer');
 const cron = require('node-cron');
 const router = express.Router();
 const mailer = require('./mailer');
+const reportGenerator = require('./reportGenerator');
 const blizzard  = require('blizzard.js').initialize({
     key: process.env.WOW_API_CLIENTID,
     secret: process.env.WOW_API_CLIENTSECRET,
@@ -356,5 +357,11 @@ router.get('/prune$', function(req, res, next) {
     pruneStaleUpgrades();
     res.json(`Pruned stale upgrade data.`);
 });
+
+router.get('/generate/report$', function(req, res, next) {
+    
+    res.json(`Compiled and mailed substitution report.`);
+});
+
 
 module.exports = router;

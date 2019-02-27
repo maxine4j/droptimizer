@@ -18,6 +18,7 @@
     "nodemailer": "^5.1.1",
     "puppeteer": "^1.11.0",
     "sqlite": "^3.0.0",
-    "sqlite3": "^4.0.6"
+    "sqlite3": "^4.0.6",
+    "tinyqueue": "^2.0.0"
   }
 }

@@ -34,7 +34,12 @@ function log(s) {
     sendMail('Info', s);
 }
 
+function report(s) {
+    sendMail('Report', s);
+}
+
 module.exports = {
     'error': error,
-    'log': log
+    'log': log,
+    'report': report
 };
