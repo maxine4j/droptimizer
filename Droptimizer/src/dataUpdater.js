@@ -359,7 +359,7 @@ router.get('/prune$', function(req, res, next) {
 });
 
 router.get('/generate/report$', function(req, res, next) {
-    
+    reportGenerator.generateSubReport();
     res.json(`Compiled and mailed substitution report.`);
 });
 
