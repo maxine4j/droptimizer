@@ -429,9 +429,11 @@ function generateSubReport() {
                     console.error('Failed to "SELECT * FROM upgrades":', err);
                     mailer.error(err);
                 }
-                boss.upgrades = [];
-                for (var k = 0; k < rows.length; k++) {
-                    boss.upgrades.push(rows[k]);
+                if (rows) {
+                    boss.upgrades = [];
+                    for (var k = 0; k < rows.length; k++) {
+                        boss.upgrades.push(rows[k]);
+                    }
                 }
             });
         }
