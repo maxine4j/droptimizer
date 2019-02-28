@@ -460,17 +460,19 @@ function generateSubReport() {
         let report = '';
         for (let j = 0; j < bosses[i].topUpgrades.length; j++) {
             upg = bosses[i].topUpgrades[j];
+            console.log("we have an upgrade");
             let sql = 'SELECT name FROM characters WHERE id = ?;';
             data.db.get(sql, [upg.characterID], (err, row) => {
                 if (err) {
                     console.error('SELECT name FROM characters":', err);
                     mailer.error(err);
                 }
+                console.log("added this upg to the report string" + row.name + ', ' + (upg.dps / upg.baseDps * 100) + '% ');
                 report += row.name + ', ' + (upg.dps / upg.baseDps * 100) + '% ' + '\n';
             });
         }
         setTimeout(function() {
-            mailer.report(report);
+            mailer.report('this is the report' + report);
         }, 5000);
     }
 }
