@@ -469,7 +469,9 @@ function generateSubReport() {
                 report += row.name + ', ' + (upg.dps / upg.baseDps * 100) + '% ' + '\n';
             });
         }
-        mailer.report(report);
+        setTimeout(function() {
+            mailer.report(report);
+        }, 5000);
     }
 }
 
