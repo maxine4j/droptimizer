@@ -449,7 +449,7 @@ function generateSubReport() {
         });
         // get top dps upgrades for boss
         bosses[i].topUpgrades = [];
-        while (finalList.length < 14 && upgQ.length > 0) {
+        while (bosses[i].topUpgrades.length < 14 && upgQ.length > 0) {
             let curUp = upgQ.pop();
             let role = specRoles[curUp.spec] || "DPS";
             if (role != "DPS") {
