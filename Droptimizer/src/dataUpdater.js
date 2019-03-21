@@ -97,21 +97,23 @@ async function runSim(charName) {
             await page.goto(uri).catch((e) => { console.error(e); mailer.error(e); });
             setTimeout(async function() { // let raidbots have 3 secs to set up the page
                 // select BoD
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div:nth-child(4) > div:nth-child(3)').catch((e) => { console.error(e); mailer.error(e); });
+                await page.click('#app > div > div.Container > section > section > div:nth-child(2) > section > div:nth-child(3) > div:nth-child(2) > div:nth-child(2) > div > div:nth-child(3) > div').catch((e) => { console.error(e); mailer.error(e); });
                 // select mythic
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(3) > div.Box > div > div:nth-child(4) > p').catch((e) => { console.error(e); mailer.error(e); });
+                await page.click('#app > div > div.Container > section > section > div:nth-child(2) > section > div:nth-child(3) > div:nth-child(2) > div:nth-child(3) > div > div > div:nth-child(4)').catch((e) => { console.error(e); mailer.error(e); });
+                // select 415 TF
+                await page.click('#app > div > div.Container > section > section > div:nth-child(2) > section > div:nth-child(3) > div:nth-child(2) > div:nth-child(4) > div > div > div:nth-child(1)').catch((e) => { console.error(e); mailer.error(e); });
                 // set reorigination array stacks to 0
                 // open sim options
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)').catch((e) => { console.error(e); mailer.error(e); });
+                //await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > label > div > div:nth-child(1) > div > div:nth-child(2)').catch((e) => { console.error(e); mailer.error(e); });
                 // click the array stacks drop down
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select').catch((e) => { console.error(e); mailer.error(e); });
+                //await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(5) > div > div > div > div:nth-child(4) > div > div > div > div > div > select').catch((e) => { console.error(e); mailer.error(e); });
                 // press down arrow to select 0 from dropdown
-                await page.keyboard.press('ArrowDown').catch((e) => { console.error(e); mailer.error(e); });
+                //await page.keyboard.press('ArrowDown').catch((e) => { console.error(e); mailer.error(e); });
                 // press enter to confirm selection
-                await page.keyboard.press('Enter').catch((e) => { console.error(e); mailer.error(e); });
+                //await page.keyboard.press('Enter').catch((e) => { console.error(e); mailer.error(e); });
                 // start the sim, twice bc it doesnt work otherwise
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button').catch((e) => { console.error(e); mailer.error(e); });
-                await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button').catch((e) => { console.error(e); mailer.error(e); });
+                await page.click('#app > div > div.Container > section > section > div:nth-child(2) > section > div:nth-child(11) > div > div:nth-child(1) > button').catch((e) => { console.error(e); mailer.error(e); });
+                //await page.click('#app > div > div.Container > section > section > div > section > div:nth-child(11) > div > div:nth-child(1) > button').catch((e) => { console.error(e); mailer.error(e); });
                 await page.waitForNavigation().catch((e) => { console.error(e); mailer.error(e); });
                 const reportID = page.url().split('/')[5];
                 await page.close().catch((e) => { console.error(e); mailer.error(e); });
