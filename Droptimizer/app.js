@@ -1,10 +1,8 @@
 require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const cors = require('cors');
 
 const characterRoutes = require('./src/characterRoutes');
 const upgradeRoutes = require('./src/upgradeRoutes');
@@ -19,9 +17,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(cors({
-    origin: process.env.CORS_ORIGIN
-}));
+app.use((req, res, next) => {
+    res.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, HEAD, OPTIONS');
+    res.set('Access-Control-Allow-Credentials', true);
+    res.set('Access-Control-Allow-Origin', process.env.CORS_ORIGIN);
+    next();
+});
 
 app.use('/1/character', characterRoutes);
 app.use('/1/upgrade', upgradeRoutes);
