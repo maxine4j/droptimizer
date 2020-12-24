@@ -1,4 +1,4 @@
 apiVersion: v2
 description: Bastion Droptimizer
 name: droptimizer
-version: 1.0.2
+version: 1.0.3
