@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-client
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-client
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-client
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-client
+          image: "{{ $.Values.client.image }}:{{ $.Chart.Version }}"
+          ports:
+            - containerPort: {{ .Values.client.port }}

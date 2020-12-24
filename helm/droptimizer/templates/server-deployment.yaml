@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-server
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-server
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-server
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-server
+          image: "{{ $.Values.server.image }}:{{ $.Chart.Version }}"
+          ports:
+            - containerPort: {{ .Values.server.port }}
+          env:
+            - name: PUSHGATEWAY_URL
+              value: "{{ $.Values.pushgatewayUrl }}"
+            - name: CLIENT_URL
+              value: https://loot.arwic.io

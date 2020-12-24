@@ -1,0 +1,11 @@
+pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
+
+client:
+  image: ghcr.io/tim-ings/droptimizer-client
+  port: 3000
+  nodePort: 30054
+
+server:
+  image: ghcr.io/tim-ings/droptimizer-server
+  port: 3000
+  nodePort: 30055
