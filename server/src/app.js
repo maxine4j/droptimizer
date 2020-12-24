@@ -4,11 +4,11 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const characterRoutes = require('./src/characterRoutes');
-const upgradeRoutes = require('./src/upgradeRoutes');
-const itemRoutes = require('./src/itemRoutes');
-const dataUpadter = require('./src/dataUpdater');
-const mailer = require('./src/mailer');
+const characterRoutes = require('./characterRoutes');
+const upgradeRoutes = require('./upgradeRoutes');
+const itemRoutes = require('./itemRoutes');
+const dataUpadter = require('./dataUpdater');
+const mailer = require('./mailer');
 
 const app = express();
 
