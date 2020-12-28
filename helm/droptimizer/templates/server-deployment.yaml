@@ -20,4 +20,19 @@ spec:
             - name: PUSHGATEWAY_URL
               value: "{{ $.Values.pushgatewayUrl }}"
             - name: CLIENT_URL
-              value: https://loot.arwic.io
+              value: "https://{{ $.Values.client.host }}"
+            - name: WOW_API_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: wow-api-clientid
+            - name: WOW_API_CLIENTSECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: wow-api-secret
+            - name: RAIDBOTS_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: raidbots-cookie
