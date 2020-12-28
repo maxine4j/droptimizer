@@ -1,11 +1,11 @@
 pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
 
 client:
+  host: loot.arwic.io
   image: ghcr.io/tim-ings/droptimizer-client
   port: 3000
-  nodePort: 30054
 
 server:
+  host: api.loot.arwic.io
   image: ghcr.io/tim-ings/droptimizer-server
   port: 3000
-  nodePort: 30055

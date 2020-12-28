@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Chart.Name }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - {{ $.Values.client.host }}
+    - {{ $.Values.server.host }}
+    secretName: "{{ .Chart.Name }}-tls"
+  rules:
+  - host: {{ $.Values.client.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: "{{ .Chart.Name }}-client"
+          servicePort: {{ $.Values.client.port }}
+  - host: {{ $.Values.server.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: "{{ .Chart.Name }}-server"
+          servicePort: {{ $.Values.server.port }}
