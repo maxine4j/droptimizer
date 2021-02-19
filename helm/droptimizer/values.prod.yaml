@@ -1,6 +1,6 @@
 pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
 
-secret: prod/cluster0/json
+secret: prod/cluster/json
 
 client:
   host: loot.arwic.io
