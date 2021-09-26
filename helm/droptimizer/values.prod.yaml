@@ -1,6 +1,6 @@
 pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
 
-secret: prod/cluster/json
+secret: /prod/droptimizer
 
 client:
   host: loot.arwic.io
