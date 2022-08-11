@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://droptimizer.tim-ings.com",
   "dependencies": {
-    "axios": "0.18.0",
+    "axios": "0.21.2",
     "moment": "2.24.0",
     "react": "16.7.0",
     "react-dom": "16.7.0",
