@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Chart.Name }}
@@ -16,14 +16,20 @@ spec:
   - host: {{ $.Values.client.host }}
     http:
       paths:
-      - path: /
+      - pathType: Prefix
+        path: /
         backend:
-          serviceName: "{{ .Chart.Name }}-client"
-          servicePort: {{ $.Values.client.port }}
+          service:
+            name: "{{ .Chart.Name }}-client"
+            port:
+              number: {{ $.Values.client.port }}
   - host: {{ $.Values.server.host }}
     http:
       paths:
-      - path: /
+      - pathType: Prefix
+        path: /
         backend:
-          serviceName: "{{ .Chart.Name }}-server"
-          servicePort: {{ $.Values.server.port }}
+          service:
+            name: "{{ .Chart.Name }}-server"
+            port:
+              number: {{ $.Values.server.port }}
