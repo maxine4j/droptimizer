@@ -17,8 +17,6 @@ spec:
           ports:
             - containerPort: {{ .Values.server.port }}
           env:
-            - name: PUSHGATEWAY_URL
-              value: "{{ $.Values.pushgatewayUrl }}"
             - name: CLIENT_URL
               value: "https://{{ $.Values.client.host }}"
             - name: WOW_API_CLIENTID

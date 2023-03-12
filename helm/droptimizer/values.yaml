@@ -1,6 +1,6 @@
-pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
-
 secret: /prod/droptimizer
+
+targetHost: homelab.tim-ings.com
 
 client:
   host: droptimizer.tim-ings.com

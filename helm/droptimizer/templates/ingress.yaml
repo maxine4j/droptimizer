@@ -6,7 +6,7 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     external-dns.alpha.kubernetes.io/hostname: "{{ $.Values.client.host }},{{ $.Values.server.host }}"
-    external-dns.alpha.kubernetes.io/target: "infra.tim-ings.com"
+    external-dns.alpha.kubernetes.io/target: "{{ $.Values.targetHost }}"
 spec:
   tls:
   - hosts:
